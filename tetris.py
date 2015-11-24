@@ -280,9 +280,9 @@ class TetrisApp(object):
 		cur_y = self.stone_y
 		dif_x = self.stone_x - best_x
 
+		self.rotate_stone()
 		# Rotates brick to proper position
 		for x in range(num_rotations):
-			lambda:self.rotate_stone
 
 		# Places brick in best x position
 		if dif_x < 0:
