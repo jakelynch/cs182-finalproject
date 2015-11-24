@@ -40,7 +40,7 @@
 # THE SOFTWARE.
 
 from random import randrange as rand
-import pygame, sys
+import pygame, sys, copy
 
 # The configuration
 cell_size =	18
@@ -284,18 +284,44 @@ class TetrisApp(object):
 		for x in range(num_rotations):
 			lambda:self.rotate_stone
 
-		# # Places brick in best x position
-		# if dif_x > 0:
-		# 	# move piece dif_x moves left
-		# 	for x in range(dif_x):
-		# 		self.move(+1)
-		# else:
-		# 	# move piece dif_x moves right
-		# 	for x in range(dif_x):
-		# 		self.move(-1)
+		# Places brick in best x position
+		if dif_x < 0:
+			# move piece dif_x moves left
+			for x in range(dif_x):
+				self.move(+1)
+		else:
+			# move piece dif_x moves right
+			for x in range(dif_x):
+				self.move(-1)
 
 		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
-		# self.drop(True)
+		self.drop(True)
+
+	def ideal_place(self):
+		print "here"
+		heuristicvals = []
+		bestxforrot = []
+		bestvalforrot = []
+		rotations = []
+		board = copy.deepcopy(self.board)
+
+		rotations.append(self.stone)
+		for i in range(1,3):
+			rotations.append(rotate_clockwise(rotations[i - 1]))
+		for stone in rotations:
+			for x in range(cols-len(stone[0])):
+				for y in range(rows):
+					if check_collision(board, stone, (x, y)):
+						heuristicvals.append(self.heuristic(join_matrixes(board, stone, (x,y))))
+			bestvalforrot.append(max(heuristicvals))
+			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
+		bestrot = bestvalforrot.index(max(bestvalforrot))
+		print bestrot, bestxforrot[bestrot]
+		self.place_brick(bestrot, bestxforrot[bestrot])
+
+	def heuristic(self, possboard):
+		return 1
+
 
 	def run(self):
 		key_actions = {
@@ -344,7 +370,7 @@ Press space to continue""" % self.score)
 						(cols+1,2))
 			pygame.display.update()
 			
-			self.place_brick(1,1)
+			self.ideal_place()
 
 			for event in pygame.event.get():
 				if event.type == pygame.USEREVENT+1:
