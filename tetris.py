@@ -44,8 +44,8 @@ import pygame, sys
 
 # The configuration
 cell_size =	18
-cols =		10
-rows =		22
+cols =		10 
+rows =		22 
 maxfps = 	30
 
 colors = [
@@ -133,10 +133,16 @@ class TetrisApp(object):
 		                                             # mouse movement
 		                                             # events, so we
 		                                             # block them.
+		# This is the first time that it passes in a falling piece, and it chooses it randomly,
+		# if we are to reach the point that we can do adverserial tetris, then we will want to
+		# replace this line so that it always starts with the most troublesome piece
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.init_game()
 	
 	def new_stone(self):
+		# Where we will have to insert the remainder of our adverserial function, right now it just chooses
+		# the different kinds randomly and we would replace that with an intelligent adversary that attempts
+		# to make it as difficult as possible for the max player
 		self.stone = self.next_stone[:]
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.stone_x = int(cols / 2 - len(self.stone[0])/2)
@@ -269,6 +275,28 @@ class TetrisApp(object):
 			self.init_game()
 			self.gameover = False
 	
+	def place_brick(self, num_rotations, best_x):
+		cur_x = self.stone_x
+		cur_y = self.stone_y
+		dif_x = self.stone_x - best_x
+
+		# Rotates brick to proper position
+		for x in range(num_rotations):
+			lambda:self.rotate_stone
+
+		# # Places brick in best x position
+		# if dif_x > 0:
+		# 	# move piece dif_x moves left
+		# 	for x in range(dif_x):
+		# 		self.move(+1)
+		# else:
+		# 	# move piece dif_x moves right
+		# 	for x in range(dif_x):
+		# 		self.move(-1)
+
+		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
+		# self.drop(True)
+
 	def run(self):
 		key_actions = {
 			'ESCAPE':	self.quit,
@@ -286,6 +314,10 @@ class TetrisApp(object):
 		
 		dont_burn_my_cpu = pygame.time.Clock()
 		while 1:
+			# print self.stone
+			# print self.stone_x
+			# print self.stone_y
+		
 			self.screen.fill((0,0,0))
 			if self.gameover:
 				self.center_msg("""Game Over!\nYour score: %d
@@ -312,6 +344,8 @@ Press space to continue""" % self.score)
 						(cols+1,2))
 			pygame.display.update()
 			
+			self.place_brick(1,1)
+
 			for event in pygame.event.get():
 				if event.type == pygame.USEREVENT+1:
 					self.drop(False)
