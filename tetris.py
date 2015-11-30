@@ -283,7 +283,7 @@ class TetrisApp(object):
 		self.rotate_stone()
 		# Rotates brick to proper position
 		for x in range(num_rotations):
-
+			self.rotate_stone()
 		# Places brick in best x position
 		if dif_x < 0:
 			# move piece dif_x moves left
