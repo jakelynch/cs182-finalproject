@@ -280,10 +280,10 @@ class TetrisApp(object):
 		cur_y = self.stone_y
 		dif_x = self.stone_x - best_x
 
-		self.rotate_stone()
 		# Rotates brick to proper position
-		for x in range(num_rotations):
-			self.rotate_stone()
+		# for x in range(num_rotations):
+		# 	self.rotate_stone()
+
 		# Places brick in best x position
 		if dif_x < 0:
 			# move piece dif_x moves left
@@ -298,7 +298,13 @@ class TetrisApp(object):
 		self.drop(True)
 
 	def ideal_place(self):
-		print "here"
+		""" We need to find a way to stop this from running on every loop because the way it is written
+		breaks the game when a piece is at the bottom, it ends the game and passes an error, so we need to
+		make it so that this function is run once when a new stone appears, then place_brick runs until the
+		brick is placed then the game will call a new stone and the process will repeat"""
+
+		# Austin's method of merging the 
+
 		heuristicvals = []
 		bestxforrot = []
 		bestvalforrot = []
@@ -317,10 +323,30 @@ class TetrisApp(object):
 			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
 		bestrot = bestvalforrot.index(max(bestvalforrot))
 		print bestrot, bestxforrot[bestrot]
-		self.place_brick(bestrot, bestxforrot[bestrot])
+		# self.place_brick(bestrot, bestxforrot[bestrot])
 
 	def heuristic(self, possboard):
-		return 1
+		# print "possboard: ", "\n", possboard, "\n"
+
+		# iterates through entire board determing score based on 
+		# 1) If it will remove a row
+		# 2) Will there be empty spaces under the placed block
+		score = 0
+
+		for i in range(rows):
+			# Plusses for each row that will be removed
+			if 0 not in self.board[i]:
+				score += 2
+
+			# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
+			# found because empty spaces under blocks are undesirable
+			for j in range(cols):
+				if self.board[i][j] != 0:
+					y = 0
+					while y < (rows - i):
+						if self.board[y][i] == 0:
+							score -= 1
+						y += 1
 
 
 	def run(self):
@@ -369,7 +395,7 @@ Press space to continue""" % self.score)
 					self.draw_matrix(self.next_stone,
 						(cols+1,2))
 			pygame.display.update()
-			
+
 			self.ideal_place()
 
 			for event in pygame.event.get():
