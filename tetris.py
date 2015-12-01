@@ -146,6 +146,7 @@ class TetrisApp(object):
 		                   self.stone,
 		                   (self.stone_x, self.stone_y)):
 			self.gameover = True
+
 	
 	def init_game(self):
 		self.board = new_board()
@@ -221,7 +222,6 @@ class TetrisApp(object):
 		self.center_msg("Exiting...")
 		pygame.display.update()
 		sys.exit()
-	
 	def drop(self, manual):
 		if not self.gameover and not self.paused:
 			self.score += 1 if manual else 0
@@ -268,15 +268,53 @@ class TetrisApp(object):
 		if self.gameover:
 			self.init_game()
 			self.gameover = False
-	
+	def AIrun(self):
+		self.gameover = False
+		self.paused = False
+		dont_burn_my_cpu = pygame.time.Clock()
+		while 1:
+			self.screen.fill((0,0,0))
+			if self.gameover:
+				self.center_msg("""Game Over!\nYour score: %d
+Press space to continue""" % self.score)
+			else:
+				if self.paused:
+					self.center_msg("Paused")
+				else:
+					pygame.draw.line(self.screen,
+						(255,255,255),
+						(self.rlim+1, 0),
+						(self.rlim+1, self.height-1))
+					self.disp_msg("Next:", (
+						self.rlim+cell_size,
+						2))
+					self.disp_msg("Score: %d\n\nLevel: %d\
+\nLines: %d" % (self.score, self.level, self.lines),
+						(self.rlim+cell_size, cell_size*5))
+					self.draw_matrix(self.bground_grid, (0,0))
+					self.draw_matrix(self.board, (0,0))
+					self.draw_matrix(self.stone,
+						(self.stone_x, self.stone_y))
+					self.draw_matrix(self.next_stone,
+						(cols+1,2))
+			pygame.display.update()
+					
+			dont_burn_my_cpu.tick(maxfps)
+			self.drop(True)
+			self.move(+1)
+			self.move(-1)
+			self.rotate_stone
+			print self.board
+			dont_burn_my_cpu.tick(maxfps)
+
 	def run(self):
 		key_actions = {
 			'ESCAPE':	self.quit,
 			'LEFT':		lambda:self.move(-1),
-			'RIGHT':	lambda:self.move(+1),
+			'RIGHT':		lambda:self.move(+1),
 			'DOWN':		lambda:self.drop(True),
 			'UP':		self.rotate_stone,
-			'p':		self.toggle_pause,
+			'SPACE':		self.toggle_pause,
 			'SPACE':	self.start_game,
 			'RETURN':	self.insta_drop
 		}
@@ -314,7 +352,8 @@ Press space to continue""" % self.score)
 			
 			for event in pygame.event.get():
 				if event.type == pygame.USEREVENT+1:
-					self.drop(False)
+					pass
+				#	self.drop(False)
 				elif event.type == pygame.QUIT:
 					self.quit()
 				elif event.type == pygame.KEYDOWN:
