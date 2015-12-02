@@ -303,14 +303,12 @@ class TetrisApp(object):
 		make it so that this function is run once when a new stone appears, then place_brick runs until the
 		brick is placed then the game will call a new stone and the process will repeat"""
 
-		# Austin's method of merging the 
-
 		heuristicvals = []
 		bestxforrot = []
 		bestvalforrot = []
 		rotations = []
 		board = copy.deepcopy(self.board)
-
+		
 		rotations.append(self.stone)
 		for i in range(1,3):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
@@ -318,7 +316,11 @@ class TetrisApp(object):
 			for x in range(cols-len(stone[0])):
 				for y in range(rows):
 					if check_collision(board, stone, (x, y)):
-						heuristicvals.append(self.heuristic(join_matrixes(board, stone, (x,y))))
+						hyp_board = copy.deepcopy(self.board)
+						heuristicvals.append(self.heuristic(join_matrixes(hyp_board, stone, (x,y))))
+						# print "copied board: ", board, "\n"
+						# print "board: ", board, "\n"
+						print join_matrixes(hyp_board, self.stone, (x,y))
 			bestvalforrot.append(max(heuristicvals))
 			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
 		bestrot = bestvalforrot.index(max(bestvalforrot))
@@ -326,27 +328,28 @@ class TetrisApp(object):
 		# self.place_brick(bestrot, bestxforrot[bestrot])
 
 	def heuristic(self, possboard):
-		# print "possboard: ", "\n", possboard, "\n"
+		# # print "possboard: ", "\n", possboard, "\n"
 
-		# iterates through entire board determing score based on 
-		# 1) If it will remove a row
-		# 2) Will there be empty spaces under the placed block
-		score = 0
+		# # iterates through entire board determing score based on 
+		# # 1) If it will remove a row
+		# # 2) Will there be empty spaces under the placed block
+		# score = 0
 
-		for i in range(rows):
-			# Plusses for each row that will be removed
-			if 0 not in self.board[i]:
-				score += 2
+		# for i in range(rows):
+		# 	# Plusses for each row that will be removed
+		# 	if 0 not in self.board[i]:
+		# 		score += 2
 
-			# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
-			# found because empty spaces under blocks are undesirable
-			for j in range(cols):
-				if self.board[i][j] != 0:
-					y = 0
-					while y < (rows - i):
-						if self.board[y][i] == 0:
-							score -= 1
-						y += 1
+		# 	# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
+		# 	# found because empty spaces under blocks are undesirable
+		# 	for j in range(cols):
+		# 		if self.board[i][j] != 0:
+		# 			y = 0
+		# 			while y < (rows - i):
+		# 				if self.board[y][i] == 0:
+		# 					score -= 1
+		# 				y += 
+		return 0
 
 
 	def run(self):
