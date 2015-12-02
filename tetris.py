@@ -313,7 +313,7 @@ class TetrisApp(object):
 		for i in range(1,3):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 		for stone in rotations:
-			for x in range(len(stone[0]), cols-len(stone[0])):
+			for x in range(cols-len(stone[0])):
 				for y in range(rows):
 					if check_collision(board, stone, (x, y)):
 						hyp_board = copy.deepcopy(self.board)
@@ -326,7 +326,6 @@ class TetrisApp(object):
 		bestrot = bestvalforrot.index(max(bestvalforrot))
 		# print bestrot, bestxforrot[bestrot]
 		self.place_brick(bestrot, bestxforrot[bestrot])
-
 
 	def heuristic(self, possboard):
 		# # print "possboard: ", "\n", possboard, "\n"
@@ -346,13 +345,12 @@ class TetrisApp(object):
 			for j in range(cols):
 				if possboard[i][j] != 0:
 					y = 0
-					while y < (rows - i - 1):
+					while y < (rows - i):
 						if possboard[rows - y][j] == 0:
 							score -= 1
 						y += 1
-
-		print "Score: ", score
 		return score
+
 
 	def run(self):
 		key_actions = {
