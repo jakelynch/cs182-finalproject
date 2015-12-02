@@ -281,8 +281,8 @@ class TetrisApp(object):
 		dif_x = self.stone_x - best_x
 
 		# Rotates brick to proper position
-		# for x in range(num_rotations):
-		# 	self.rotate_stone()
+		for x in range(num_rotations):
+			self.rotate_stone()
 
 		# Places brick in best x position
 		if dif_x < 0:
@@ -318,6 +318,8 @@ class TetrisApp(object):
 					if check_collision(board, stone, (x, y)):
 						hyp_board = copy.deepcopy(self.board)
 						heuristicvals.append(self.heuristic(join_matrixes(hyp_board, stone, (x,y))))
+						print x,y
+						print stone
 						# print "copied board: ", board, "\n"
 						# print "board: ", board, "\n"
 						# print join_matrixes(hyp_board, self.stone, (x,y))
