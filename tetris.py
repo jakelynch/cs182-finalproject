@@ -320,37 +320,38 @@ class TetrisApp(object):
 						heuristicvals.append(self.heuristic(join_matrixes(hyp_board, stone, (x,y))))
 						# print "copied board: ", board, "\n"
 						# print "board: ", board, "\n"
-						print join_matrixes(hyp_board, self.stone, (x,y))
+						# print join_matrixes(hyp_board, self.stone, (x,y))
 			bestvalforrot.append(max(heuristicvals))
 			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
 		bestrot = bestvalforrot.index(max(bestvalforrot))
-		print bestrot, bestxforrot[bestrot]
+		# print bestrot, bestxforrot[bestrot]
 		# self.place_brick(bestrot, bestxforrot[bestrot])
 
 	def heuristic(self, possboard):
 		# # print "possboard: ", "\n", possboard, "\n"
 
-		# # iterates through entire board determing score based on 
-		# # 1) If it will remove a row
-		# # 2) Will there be empty spaces under the placed block
-		# score = 0
+		# iterates through entire board determing score based on 
+		# 1) If it will remove a row
+		# 2) Will there be empty spaces under the placed block
+		score = 0
 
-		# for i in range(rows):
-		# 	# Plusses for each row that will be removed
-		# 	if 0 not in self.board[i]:
-		# 		score += 2
+		for i in range(rows):
+			# Plusses for each row that will be removed
+			if 0 not in possboard[i]:
+				score += 2
 
-		# 	# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
-		# 	# found because empty spaces under blocks are undesirable
-		# 	for j in range(cols):
-		# 		if self.board[i][j] != 0:
-		# 			y = 0
-		# 			while y < (rows - i):
-		# 				if self.board[y][i] == 0:
-		# 					score -= 1
-		# 				y += 
-		return 0
+			# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
+			# found because empty spaces under blocks are undesirable
+			for j in range(cols):
+				if possboard[i][j] != 0:
+					y = 0
+					while y < (rows - i - 1):
+						if possboard[rows - y][j] == 0:
+							score -= 1
+						y += 1
 
+		print "Score: ", score
+		return score
 
 	def run(self):
 		key_actions = {
