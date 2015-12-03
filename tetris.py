@@ -40,12 +40,12 @@
 # THE SOFTWARE.
 
 from random import randrange as rand
-import pygame, sys
+import pygame, sys, copy
 
 # The configuration
 cell_size =	18
-cols =		10
-rows =		22
+cols =		10 
+rows =		22 
 maxfps = 	30
 
 colors = [
@@ -133,10 +133,16 @@ class TetrisApp(object):
 		                                             # mouse movement
 		                                             # events, so we
 		                                             # block them.
+		# This is the first time that it passes in a falling piece, and it chooses it randomly,
+		# if we are to reach the point that we can do adverserial tetris, then we will want to
+		# replace this line so that it always starts with the most troublesome piece
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.init_game()
 	
 	def new_stone(self):
+		# Where we will have to insert the remainder of our adverserial function, right now it just chooses
+		# the different kinds randomly and we would replace that with an intelligent adversary that attempts
+		# to make it as difficult as possible for the max player
 		self.stone = self.next_stone[:]
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.stone_x = int(cols / 2 - len(self.stone[0])/2)
@@ -268,44 +274,80 @@ class TetrisApp(object):
 		if self.gameover:
 			self.init_game()
 			self.gameover = False
-	def AIrun(self):
-		self.gameover = False
-		self.paused = False
-		dont_burn_my_cpu = pygame.time.Clock()
-		while 1:
-			self.screen.fill((0,0,0))
-			if self.gameover:
-				self.center_msg("""Game Over!\nYour score: %d
-Press space to continue""" % self.score)
-			else:
-				if self.paused:
-					self.center_msg("Paused")
-				else:
-					pygame.draw.line(self.screen,
-						(255,255,255),
-						(self.rlim+1, 0),
-						(self.rlim+1, self.height-1))
-					self.disp_msg("Next:", (
-						self.rlim+cell_size,
-						2))
-					self.disp_msg("Score: %d\n\nLevel: %d\
-\nLines: %d" % (self.score, self.level, self.lines),
-						(self.rlim+cell_size, cell_size*5))
-					self.draw_matrix(self.bground_grid, (0,0))
-					self.draw_matrix(self.board, (0,0))
-					self.draw_matrix(self.stone,
-						(self.stone_x, self.stone_y))
-					self.draw_matrix(self.next_stone,
-						(cols+1,2))
-			pygame.display.update()
-					
-			dont_burn_my_cpu.tick(maxfps)
-			self.drop(True)
-			self.move(+1)
-			self.move(-1)
-			self.rotate_stone
-			print self.board
-			dont_burn_my_cpu.tick(maxfps)
+
+	def place_brick(self, num_rotations, best_x):
+		cur_x = self.stone_x
+		cur_y = self.stone_y
+		dif_x = self.stone_x - best_x
+
+		# Rotates brick to proper position
+		# for x in range(num_rotations):
+		# 	self.rotate_stone()
+
+		# Places brick in best x position
+		if dif_x < 0:
+			# move piece dif_x moves left
+			for x in range(dif_x):
+				self.move(+1)
+		else:
+			# move piece dif_x moves right
+			for x in range(dif_x):
+				self.move(-1)
+
+		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
+		self.drop(True)
+
+	def ideal_place(self):
+		""" We need to find a way to stop this from running on every loop because the way it is written
+		breaks the game when a piece is at the bottom, it ends the game and passes an error, so we need to
+		make it so that this function is run once when a new stone appears, then place_brick runs until the
+		brick is placed then the game will call a new stone and the process will repeat"""
+
+		# Austin's method of merging the 
+
+		heuristicvals = []
+		bestxforrot = []
+		bestvalforrot = []
+		rotations = []
+		board = copy.deepcopy(self.board)
+
+		rotations.append(self.stone)
+		for i in range(1,3):
+			rotations.append(rotate_clockwise(rotations[i - 1]))
+		for stone in rotations:
+			for x in range(cols-len(stone[0])):
+				for y in range(rows):
+					if check_collision(board, stone, (x, y)):
+						heuristicvals.append(self.heuristic(join_matrixes(board, stone, (x,y))))
+			bestvalforrot.append(max(heuristicvals))
+			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
+		bestrot = bestvalforrot.index(max(bestvalforrot))
+		#print bestrot, bestxforrot[bestrot]
+		self.place_brick(bestrot, bestxforrot[bestrot])
+
+	def heuristic(self, possboard):
+		# print "possboard: ", "\n", possboard, "\n"
+
+		# iterates through entire board determing score based on 
+		# 1) If it will remove a row
+		# 2) Will there be empty spaces under the placed block
+		score = 0
+		print "pass"
+		for i in range(rows):
+			# Plusses for each row that will be removed
+			if 0 not in self.board[i]:
+				score += 2
+
+			# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
+			# found because empty spaces under blocks are undesirable
+			for j in range(cols):
+				if self.board[i][j] != 0:
+					y = 0
+					while y < (rows - i):
+						print "i = " + str(i) +", y =" + str(y)
+						if self.board[i][y] == 0:
+							score -= 1
+						y += 1
 
 	def run(self):
 		key_actions = {
@@ -321,9 +363,14 @@ Press space to continue""" % self.score)
 		
 		self.gameover = False
 		self.paused = False
+		print self.board
 		
 		dont_burn_my_cpu = pygame.time.Clock()
 		while 1:
+			# print self.stone
+			# print self.stone_x
+			# print self.stone_y
+		
 			self.screen.fill((0,0,0))
 			if self.gameover:
 				self.center_msg("""Game Over!\nYour score: %d
@@ -349,7 +396,9 @@ Press space to continue""" % self.score)
 					self.draw_matrix(self.next_stone,
 						(cols+1,2))
 			pygame.display.update()
-			
+
+			self.ideal_place()
+
 			for event in pygame.event.get():
 				if event.type == pygame.USEREVENT+1:
 					pass
