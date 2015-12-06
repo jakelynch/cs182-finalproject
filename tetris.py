@@ -42,8 +42,8 @@
 from random import randrange as rand
 import pygame, sys, copy
 import  random,util,math
-
-
+import qlearningagent
+from copy import deepcopy
 # The configuration
 cell_size =	18
 cols =		10 
@@ -318,6 +318,8 @@ class TetrisApp(object):
 		for i in range(1,3):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 		for stone in rotations:
+			actions = self.get_legal_actions(stone)
+			print "actions: ", actions
 			for x in range(cols-len(stone[0])):
 				for y in range(rows):
 					if check_collision(board, stone, (x, y)):
@@ -330,7 +332,7 @@ class TetrisApp(object):
 							print "Oops thats an error"
 							
 						#print x,y
-						print stone
+						#print stone
 						# print "copied board: ", board, "\n"
 						# print "board: ", board, "\n"
 						# print join_matrixes(hyp_board, self.stone, (x,y))
@@ -340,6 +342,19 @@ class TetrisApp(object):
 
 		self.place_brick(bestrot, bestxforrot[bestrot])
 
+	def get_legal_actions(self, stone):
+		rotations = []
+		actions = []
+		rotations.append(self.stone)
+		for i in range(1,3):
+			rotations.append(rotate_clockwise(rotations[i - 1]))
+			print rotate_clockwise(rotations[i-1])
+		for rot in rotations:
+			for x in range(cols - len(stone[0])):
+				actions.append((rot, x))
+		return actions
+
+
 	def get_states(self):
 		board = copy.deepcopy(self.board)
 		rotations.append(self.stone)
@@ -347,10 +362,12 @@ class TetrisApp(object):
 		for i in range(1,3):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 		for stone in rotations:
+			pass
 
 	def qlearning(self):
-		Q=qlearning.QLearningAgent()
-		Q.computeActionFromQ
+		Q = qlearning.QLearningAgent()
+		Q.computeActionFromQ()
+
 	def average_height(board):
 		board_array = np.array(board)
 		board_array_transpose=board_array.transpose()
@@ -387,7 +404,7 @@ class TetrisApp(object):
 
 
 	def heuristic(self, possboard):
-		print "possboard: ", "\n", possboard, "\n"
+		# print "possboard: ", "\n", possboard, "\n"
 
 		# iterates through entire board determing score based on 
 		# 1) If it will remove a row
@@ -409,31 +426,31 @@ class TetrisApp(object):
 						if possboard[rows - y][j] == 0:
 							score -= 1
 						y += 1
-		print score
+		# print score
 		return score
 
-	def get_board_state(board):
+	def get_board_state(self, board):
 		
-		transpose= arraytranspose(board)
+		transpose= self.arraytranspose(board)
 
 
 		state = []
 
 		for row in transpose:
-			print row
+			# print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
 		return state
 
-	def arraytranspose(board):
+	def arraytranspose(self, board):
 		board2 = deepcopy(board)
-		print board2
+		# print board2
 		board3 = [[0 for i in range(rows)] for i in range(cols)]
-		print board3
+		# print board3
 		for i in range(rows):
 			for j in range(cols):
 				print i,j
 				board3[j][i] = board2[i][j]
-		print board3
+		# print board3
 		return  board3
 
 
@@ -485,9 +502,9 @@ Press space to continue""" % self.score)
 						(cols+1,2))
 			pygame.display.update()
 
-			self.ideal_place()
-			Q.getAction((self.piece, get_board_state(self.board)))
-
+			#self.ideal_place()
+			legalactions = self.get_legal_actions(self.stone)
+			Q.getAction((self.stone, self.get_board_state(self.board)),legalactions)
 			for event in pygame.event.get():
 				if event.type == pygame.USEREVENT+1:
 					pass

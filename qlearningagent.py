@@ -56,14 +56,14 @@ class QLearningAgent(Agent):
 
         "*** YOUR CODE HERE ***"
 
-    def getLegalActions(self,state):
-        """
-          Get the actions available for a given
-          state. This is what you should use to
-          obtain legal actions for a state
-        """
-        return self.actionFn(state)
-
+    """def getLegalActions(self,state):
+                    
+                      Get the actions available for a given
+                      state. This is what you should use to
+                      obtain legal actions for a state
+                    
+                    return self.actionFn(state)
+            """
     def observeTransition(self, state,action,nextState,deltaReward):
         """
             Called by environment to inform agent that a transition has
@@ -100,24 +100,26 @@ class QLearningAgent(Agent):
           val= self.getQValue(state,action)
         return val
 
-    def computeActionFromQValues(self, state):
+    def computeActionFromQValues(self, state,legalActions):
         """
           Compute the best action to take in a state.  Note that if there
           are no legal actions, which is the case at the terminal state,
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        #legalActions=self.getLegalActions(state)
+        
         finalaction=None
         if len(legalActions)!=0:
           maxval= -999999
+          print type(legalActions)
           for action in legalActions:
+            print action, type(action),state
             Qval=self.getQValue(state,action)
             if Qval>=maxval:
               maxval=Qval
               finalaction=action
         return finalaction
-    def getAction(self, state):
+    def getAction(self, state, actions):
         """
           Compute the action to take in the current state.  With
           probability self.epsilon, we should take a random action and
@@ -129,14 +131,14 @@ class QLearningAgent(Agent):
           HINT: To pick randomly from a list, use random.choice(list)
         """
         # Pick Action
-        legalActions = self.getLegalActions(state)
+        legalActions = actions
         action = None
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
                 action = random.choice(legalActions)
               else:
-                action = self.computeActionFromQValues(state)
+                action = self.computeActionFromQValues(state,legalActions)
         return action
 
     def update(self, state, action, nextState, reward):
