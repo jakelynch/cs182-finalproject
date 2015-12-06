@@ -41,11 +41,13 @@
 
 from random import randrange as rand
 import pygame, sys, copy
+import  random,util,math
+
 
 # The configuration
 cell_size =	18
 cols =		10 
-rows =		22 
+rows =		22
 maxfps = 	30
 
 colors = [
@@ -104,6 +106,7 @@ def remove_row(board, row):
 	return [[0 for i in xrange(cols)]] + board
 	
 def join_matrixes(mat1, mat2, mat2_off):
+	#print "mat1 = " + str(mat1), "mat2 = " + str(mat2), "mat2_off = " + str(mat2_off)
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
@@ -111,9 +114,9 @@ def join_matrixes(mat1, mat2, mat2_off):
 	return mat1
 
 def new_board():
-	board = [ [ 0 for x in xrange(cols) ]
+	board = [ [ 0 for x in xrange(cols+1) ]
 			for y in xrange(rows) ]
-	board += [[ 1 for x in xrange(cols)]]
+	board += [[ 1 for x in xrange(cols)] for i in xrange(1)]
 	return board
 
 class TetrisApp(object):
@@ -281,8 +284,8 @@ class TetrisApp(object):
 		dif_x = self.stone_x - best_x
 
 		# Rotates brick to proper position
-		# for x in range(num_rotations):
-		# 	self.rotate_stone()
+		for x in range(num_rotations):
+			self.rotate_stone()
 
 		# Places brick in best x position
 		if dif_x < 0:
@@ -296,6 +299,7 @@ class TetrisApp(object):
 
 		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
 		self.drop(True)
+ 
 
 	def ideal_place(self):
 		""" We need to find a way to stop this from running on every loop because the way it is written
@@ -303,51 +307,135 @@ class TetrisApp(object):
 		make it so that this function is run once when a new stone appears, then place_brick runs until the
 		brick is placed then the game will call a new stone and the process will repeat"""
 
-		# Austin's method of merging the 
-
 		heuristicvals = []
 		bestxforrot = []
 		bestvalforrot = []
 		rotations = []
 		board = copy.deepcopy(self.board)
-
+		
 		rotations.append(self.stone)
+		#print self.stone
 		for i in range(1,3):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 		for stone in rotations:
 			for x in range(cols-len(stone[0])):
 				for y in range(rows):
 					if check_collision(board, stone, (x, y)):
-						heuristicvals.append(self.heuristic(join_matrixes(board, stone, (x,y))))
+						hyp_board = copy.deepcopy(self.board)
+						#print type(hyp_board)
+						try:
+							#print "here"
+							heuristicvals.append(self.heuristic(join_matrixes(hyp_board, stone, (x,y))))
+						except: 
+							print "Oops thats an error"
+							
+						#print x,y
+						print stone
+						# print "copied board: ", board, "\n"
+						# print "board: ", board, "\n"
+						# print join_matrixes(hyp_board, self.stone, (x,y))
 			bestvalforrot.append(max(heuristicvals))
 			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
 		bestrot = bestvalforrot.index(max(bestvalforrot))
-		#print bestrot, bestxforrot[bestrot]
+
 		self.place_brick(bestrot, bestxforrot[bestrot])
 
+	def get_states(self):
+		board = copy.deepcopy(self.board)
+		rotations.append(self.stone)
+		#print self.stone
+		for i in range(1,3):
+			rotations.append(rotate_clockwise(rotations[i - 1]))
+		for stone in rotations:
+
+	def qlearning(self):
+		Q=qlearning.QLearningAgent()
+		Q.computeActionFromQ
+	def average_height(board):
+		board_array = np.array(board)
+		board_array_transpose=board_array.transpose()
+		Sum= 0 
+		for row in board_array_transpose:
+			for i in range(len(row)):
+				if row[i] > 0:
+					break
+				Sum +=1
+		return float(Sum)/float(len(board))
+
+	def difference_squared(board, column):
+		board_array = np.array(board)
+		transpose=board_array.transpose()
+		
+		Sum1= 0
+		Sum2 = 0
+		Sum3= 0
+		sq_difference = 0
+		for i in range(len(transpose[column])):
+			if transpose[column][i]> 0:
+				break
+			Sum1+=1
+		for i in range(len(transpose[column-1])):
+			if transpose[column-1][i]> 0:
+				break
+			Sum2+=1
+		for i in range(len(transpose[column+1])):
+			if transpose[column+1][i]> 0:
+				break
+			Sum3+=1
+		sq_difference+= (Sum3-Sum1)**2 + (Sum2-Sum1)**2
+		return sq_difference
+
+
 	def heuristic(self, possboard):
-		# print "possboard: ", "\n", possboard, "\n"
+		print "possboard: ", "\n", possboard, "\n"
 
 		# iterates through entire board determing score based on 
 		# 1) If it will remove a row
 		# 2) Will there be empty spaces under the placed block
 		score = 0
-		print "pass"
+		#print "pass"
 		for i in range(rows):
 			# Plusses for each row that will be removed
-			if 0 not in self.board[i]:
+			if 0 not in possboard[i]:
 				score += 2
 
 			# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
 			# found because empty spaces under blocks are undesirable
 			for j in range(cols):
-				if self.board[i][j] != 0:
+				if possboard[i][j] != 0:
 					y = 0
 					while y < (rows - i):
-						print "i = " + str(i) +", y =" + str(y)
-						if self.board[i][y] == 0:
+
+						if possboard[rows - y][j] == 0:
 							score -= 1
 						y += 1
+		print score
+		return score
+
+	def get_board_state(board):
+		
+		transpose= arraytranspose(board)
+
+
+		state = []
+
+		for row in transpose:
+			print row
+			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
+		return state
+
+	def arraytranspose(board):
+		board2 = deepcopy(board)
+		print board2
+		board3 = [[0 for i in range(rows)] for i in range(cols)]
+		print board3
+		for i in range(rows):
+			for j in range(cols):
+				print i,j
+				board3[j][i] = board2[i][j]
+		print board3
+		return  board3
+
 
 	def run(self):
 		key_actions = {
@@ -360,7 +448,7 @@ class TetrisApp(object):
 			'SPACE':	self.start_game,
 			'RETURN':	self.insta_drop
 		}
-		
+		Q = qlearningagent.QLearningAgent()
 		self.gameover = False
 		self.paused = False
 		print self.board
@@ -398,6 +486,7 @@ Press space to continue""" % self.score)
 			pygame.display.update()
 
 			self.ideal_place()
+			Q.getAction((self.piece, get_board_state(self.board)))
 
 			for event in pygame.event.get():
 				if event.type == pygame.USEREVENT+1:
@@ -412,6 +501,10 @@ Press space to continue""" % self.score)
 							key_actions[key]()
 					
 			dont_burn_my_cpu.tick(maxfps)
+
+
+
+
 
 if __name__ == '__main__':
 	App = TetrisApp()
