@@ -422,18 +422,16 @@ class TetrisApp(object):
 		for row in transpose:
 			print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
+		
 		return state
 
 	def arraytranspose(board):
 		board2 = deepcopy(board)
-		print board2
 		board3 = [[0 for i in range(rows)] for i in range(cols)]
-		print board3
 		for i in range(rows):
 			for j in range(cols):
 				print i,j
 				board3[j][i] = board2[i][j]
-		print board3
 		return  board3
 
 
