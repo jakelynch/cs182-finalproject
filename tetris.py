@@ -422,15 +422,14 @@ class TetrisApp(object):
 		# iterates through entire board determing score based on 
 		# 1) If it will remove a row
 		# 2) Will there be empty spaces under the placed block
-		score = 0
 		#print "pass"
 		diffsq=[]
 		for i in range(1,cols-1):
 			diffsq.append(self.difference_squared(possboard,i))
 		diffsqsum = sum(diffsq)
 		avgheight = self.average_height(possboard)
-		score -=diffsqsum+avgheight
-
+		score = -(diffsqsum+avgheight)
+		print score
 		
 		return score
 		"""		for i in range(rows):

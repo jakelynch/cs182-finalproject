@@ -138,6 +138,7 @@ class QLearningAgent(TetrisApp):
         self.epsilon=epsilon
         self.discount=gamma
         self.Tetris= TetrisApp()
+        self.boardprev=0.
 
         "*** YOUR CODE HERE ***"
 
@@ -263,69 +264,81 @@ class QLearningAgent(TetrisApp):
         'RETURN': self.Tetris.insta_drop
       }
       n+=1
-      try: print self.Tetris.board-self.Tetris.boardprev
-      self.Tetris.boardprev=self.Tetris.board
-      self.epsilon = 1./float(n+1)
+      try: 
+        print self.Tetris.board-self.boardprev
+      except:
+        pass
+      self.boardprev=self.Tetris.board
+      self.epsilon = 1./float(n/20.+1.)
       
       self.Tetris.gameover = False
       self.Tetris.paused = False
       #print self.Tetris.board
       
       dont_burn_my_cpu = pygame.time.Clock()
+      rot, col = self.getAction(self.Tetris.stone)
+      prevboard = deepcopy(self.Tetris.board)
       while 1:
         # print self.Tetris.stone
         # print self.Tetris.stone_x
         # print self.Tetris.stone_y
-      
-        self.Tetris.screen.fill((0,0,0))
-        if self.Tetris.gameover:
-          self.Tetris.center_msg("""Game Over!\nYour score: %d
-  Press space to continue""" % self.Tetris.score)
-          if n< 10:
-            self.Tetris.start_game()
-          else: 
-            self.Tetris.quit()
-        else:
-          if self.Tetris.paused:
-            self.Tetris.center_msg("Paused")
-          else:
-            pygame.draw.line(self.Tetris.screen,
-              (255,255,255),
-              (self.Tetris.rlim+1, 0),
-              (self.Tetris.rlim+1, self.Tetris.height-1))
-            self.Tetris.disp_msg("Next:", (
-              self.Tetris.rlim+cell_size,
-              2))
-            self.Tetris.disp_msg("Score: %d\n\nLevel: %d\
-  \nLines: %d" % (self.Tetris.score, self.Tetris.level, self.Tetris.lines),
-              (self.Tetris.rlim+cell_size, cell_size*5))
-            self.Tetris.draw_matrix(self.Tetris.bground_grid, (0,0))
-            self.Tetris.draw_matrix(self.Tetris.board, (0,0))
-            self.Tetris.draw_matrix(self.Tetris.stone,
-              (self.Tetris.stone_x, self.Tetris.stone_y))
-            self.Tetris.draw_matrix(self.Tetris.next_stone,
-              (cols+1,2))
-        pygame.display.update()
+        self.update(prevboard, (rot,col), self.Tetris.board, self.Tetris.heuristic(self.Tetris.board)) 
 
-        #self.Tetris.ideal_place()
+        piece = self.Tetris.stone
         prevboard = deepcopy(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
         rot, col =self.getAction(self.Tetris.stone)
-        self.Tetris.place_brick(rotdict[str(rot)],col)
-        self.update(prevboard, (rot,col), self.Tetris.board, self.Tetris.heuristic(self.Tetris.board)) 
-        for event in pygame.event.get():
-          if event.type == pygame.USEREVENT+1:
-            pass
-          # self.Tetris.drop(False)
-          elif event.type == pygame.QUIT:
-            self.Tetris.quit()
-          elif event.type == pygame.KEYDOWN:
-            for key in key_actions:
-              if event.key == eval("pygame.K_"
-              +key):
-                key_actions[key]()
-            
-        dont_burn_my_cpu.tick(maxfps)
+
+        while piece == self.Tetris.stone:
+          self.Tetris.screen.fill((0,0,0))
+          if self.Tetris.gameover:
+            self.Tetris.center_msg("""Game Over!\nYour score: %d
+    Press space to continue""" % self.Tetris.score)
+            if n< 10:
+              self.Tetris.start_game()
+            else: 
+              self.Tetris.quit()
+          else:
+            if self.Tetris.paused:
+              self.Tetris.center_msg("Paused")
+            else:
+              pygame.draw.line(self.Tetris.screen,
+                (255,255,255),
+                (self.Tetris.rlim+1, 0),
+                (self.Tetris.rlim+1, self.Tetris.height-1))
+              self.Tetris.disp_msg("Next:", (
+                self.Tetris.rlim+cell_size,
+                2))
+              self.Tetris.disp_msg("Score: %d\n\nLevel: %d\
+    \nLines: %d" % (self.Tetris.score, self.Tetris.level, self.Tetris.lines),
+                (self.Tetris.rlim+cell_size, cell_size*5))
+              self.Tetris.draw_matrix(self.Tetris.bground_grid, (0,0))
+              self.Tetris.draw_matrix(self.Tetris.board, (0,0))
+              self.Tetris.draw_matrix(self.Tetris.stone,
+                (self.Tetris.stone_x, self.Tetris.stone_y))
+              self.Tetris.draw_matrix(self.Tetris.next_stone,
+                (cols+1,2))
+          pygame.display.update()
+
+          #self.Tetris.ideal_place()
+          """prevboard = deepcopy(self.Tetris.board)
+                                                  legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
+                                                  rot, col =self.getAction(self.Tetris.stone)
+                                        """
+          self.Tetris.place_brick(rotdict[str(rot)],col)
+          for event in pygame.event.get():
+            if event.type == pygame.USEREVENT+1:
+              pass
+            # self.Tetris.drop(False)
+            elif event.type == pygame.QUIT:
+              self.Tetris.quit()
+            elif event.type == pygame.KEYDOWN:
+              for key in key_actions:
+                if event.key == eval("pygame.K_"
+                +key):
+                  key_actions[key]()
+              
+          dont_burn_my_cpu.tick(maxfps)
 
 if __name__ == '__main__':
   Q=  QLearningAgent()
