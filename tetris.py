@@ -432,7 +432,10 @@ class TetrisApp(object):
 		print "Score 1: ", score
 
 		for i in range(rows):
-			# Plusses for each row that will be removed
+			for x in possboard[i]:
+				if x == 0:
+					score -= 10.0
+			# Adds for each row that will be removed
 			if 0 not in possboard[i]:
 				score += 50.0
 
@@ -474,10 +477,6 @@ class TetrisApp(object):
 
 		# print board3
 		return  board3
-
-
-
-
 
 """
 
