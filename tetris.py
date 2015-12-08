@@ -313,7 +313,7 @@ class TetrisApp(object):
 		self.insta_drop()
  
 
-	def ideal_place(self):
+	def ideal_place(self,origboard):
 		""" We need to find a way to stop this from running on every loop because the way it is written
 		breaks the game when a piece is at the bottom, it ends the game and passes an error, so we need to
 		make it so that this function is run once when a new stone appears, then place_brick runs until the
@@ -323,9 +323,9 @@ class TetrisApp(object):
 		bestxforrot = []
 		bestvalforrot = []
 		rotations = []
-		board = copy.deepcopy(self.board)
+		board = copy.deepcopy(origboard)
 		
-		rotations.append(self.stone)
+		rotations.append(self.Tetris.stone)
 		#print self.stone
 		for i in range(1,3):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
@@ -335,11 +335,15 @@ class TetrisApp(object):
 			for x in range(cols-len(stone[0])):
 				for y in range(rows):
 					if check_collision(board, stone, (x, y)):
-						hyp_board = copy.deepcopy(self.board)
+						hyp_board = copy.deepcopy(self.Tetris.board)
 						#print type(hyp_board)
 						try:
 							#print "here"
-							heuristicvals.append(self.heuristic(join_matrixes(hyp_board, stone, (x,y))))
+							#print join_matrixes(hyp_board, stone, (x,y))
+							#print "matrix ", join_matrixes(hyp_board, stone, (x,y))
+							difference = self.maxrow(join_matrixes(hyp_board, stone, (x,y)))- self.maxrow(origboard)
+							
+							heuristicvals.append(difference)
 						except: 
 							print "Oops thats an error"
 							
@@ -348,16 +352,20 @@ class TetrisApp(object):
 						# print "copied board: ", board, "\n"
 						# print "board: ", board, "\n"
 						# print join_matrixes(hyp_board, self.stone, (x,y))
+			print max(heuristicvals)
 			bestvalforrot.append(max(heuristicvals))
 			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
-		bestrot = bestvalforrot.index(max(bestvalforrot))
 
-		self.place_brick(bestrot, bestxforrot[bestrot])
+		bestrot = bestvalforrot.index(max(bestvalforrot))
+		#print "we return ", rotations[bestrot], bestxforrot[bestrot]
+		action = rotations[bestrot], bestxforrot[bestrot]
+		print action
+		return action
 
 	def get_legal_actions(self, stone):
 		rotations = []
 		actions = []
-		rotations.append(self.stone)
+		rotations.append(stone)
 		for i in range(1,3):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 			#print rotate_clockwise(rotations[i-1])
@@ -393,11 +401,11 @@ class TetrisApp(object):
 			# print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
 		val = float(sum(state))/float(len(state))
-		print val
+		#print val
 		return val
-		board_array_transpose=self.arraytranspose(board)
+		"""board_array_transpose=self.arraytranspose(board)
 		Sum= 0
-		print "board_array_transpose = ", board_array_transpose 
+		#print "board_array_transpose = ", board_array_transpose 
 		for row in board_array_transpose:
 
 			for i in range(len(row)):
@@ -405,9 +413,9 @@ class TetrisApp(object):
 					break
 				Sum +=1
 		val = float(Sum)/float(len(board))
-		print val
+		print "val", val
 		return val
-
+		"""
 	def difference_squared(self,board, column):
 		#board_array = np.array(board)
 		transpose=self.arraytranspose(board)
@@ -518,6 +526,16 @@ class TetrisApp(object):
 		return finalarray
 		
 	
+
+	def maxrow(self,board):
+		maxval = 0
+		for row in board[:len(board)-1]:
+			row = np.array(row)
+			val = len(row[row>0])
+			if val>maxval:
+				maxval = val
+			#print "val", val
+		return maxval
 
 
 	def arraytranspose(self, board):

@@ -131,7 +131,7 @@ class QLearningAgent(TetrisApp):
         - self.getLegalActions(state)
           which returns legal actions for a state
     """
-    def __init__(self, alpha = 0.01, gamma = .5, epsilon = .001):
+    def __init__(self, alpha = 0.01, gamma = .5, epsilon = 1):
         "You can initialize Q-values here..."
         "reinforcementAgent.__init__(self, **args)"
         self.qval=util.Counter()
@@ -242,11 +242,11 @@ class QLearningAgent(TetrisApp):
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
-                maxval = 0
-                for action in legalactions:
-                  testboard = deepcopy(self.Tetris.board)
-                  self.Tetris.join_matrixes(testboard, action[0],action[1])
-                  maxval = 
+                action = self.ideal_place(self.Tetris.board)
+                #print action 
+                
+
+
               else:
                 action = self.computeActionFromQValues(state)
 
@@ -290,7 +290,7 @@ class QLearningAgent(TetrisApp):
                        pass"""
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
-      self.epsilon = 1./float(15*math.log(n)+1.)
+      #self.epsilon = 1./float(15*math.log(n)+1.)
       
       self.Tetris.gameover = False
       self.Tetris.paused = False
@@ -314,7 +314,7 @@ class QLearningAgent(TetrisApp):
         prevboard = self.Tetris.get_board_state(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
-
+        #print rot, col
         while piece == self.Tetris.stone:
  
           self.Tetris.screen.fill((0,0,0))
