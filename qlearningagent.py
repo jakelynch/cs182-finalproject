@@ -187,6 +187,7 @@ class QLearningAgent(TetrisApp):
         action=self.computeActionFromQValues(state)
         if action != None:
           val= self.getQValue(state,action)
+        print val
         return val
 
     def computeActionFromQValues(self, state):
@@ -264,12 +265,12 @@ class QLearningAgent(TetrisApp):
         'RETURN': self.Tetris.insta_drop
       }
       n+=1
-      try: 
-        print self.Tetris.board-self.boardprev
-      except:
-        pass
+      """ try: 
+                       print self.Tetris.board-self.boardprev
+                     except:
+                       pass"""
       self.boardprev=self.Tetris.board
-      self.epsilon = 1./float(n/20.+1.)
+      self.epsilon = 1./float(n/+1.)
       
       self.Tetris.gameover = False
       self.Tetris.paused = False
@@ -294,7 +295,7 @@ class QLearningAgent(TetrisApp):
           if self.Tetris.gameover:
             self.Tetris.center_msg("""Game Over!\nYour score: %d
     Press space to continue""" % self.Tetris.score)
-            if n< 10:
+            if n< 10000:
               self.Tetris.start_game()
             else: 
               self.Tetris.quit()

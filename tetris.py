@@ -429,7 +429,7 @@ class TetrisApp(object):
 		diffsqsum = sum(diffsq)
 		avgheight = self.average_height(possboard)
 		score = -(diffsqsum+avgheight)
-		print score
+		#print score
 		
 		return score
 		"""		for i in range(rows):
