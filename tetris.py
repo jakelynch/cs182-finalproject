@@ -418,7 +418,7 @@ class TetrisApp(object):
 
 	def heuristic(self, possboard):
 		# print "possboard: ", "\n", possboard, "\n"
-
+		board = np.array(possboard)
 		# iterates through entire board determing score based on 
 		# 1) If it will remove a row
 		# 2) Will there be empty spaces under the placed block
@@ -426,16 +426,18 @@ class TetrisApp(object):
 		diffsq=[]
 		for i in range(1,cols-1):
 			diffsq.append(self.difference_squared(possboard,i))
-		diffsqsum = sum(diffsq)
-		avgheight = self.average_height(possboard)
-		score = -(diffsqsum+avgheight)
+		diffsqsum = sum(diffsq)/10.
+		print "diffsqsum =" +str(diffsqsum)
+		avgheight = self.average_height(possboard)/4.
+		print "avgheight =" +str(avgheight)
+		score = -(diffsqsum+avgheight**3)
 
 		#print "Score 1: ", score
-
+		rowcount=[]
 		for i in range(rows):
-			for x in possboard[i]:
-				if x == 0:
-					score -= 10.0
+			"""for x in possboard[i]:
+													if x == 0:
+														score -= .01"""
 			# Adds for each row that will be removed
 			if 0 not in possboard[i]:
 				score += 50.0
@@ -447,10 +449,19 @@ class TetrisApp(object):
 					y = 0
 					while y < (rows - i):
 
-						if possboard[rows - y][j] == 0:
-							score -= 15.0
+						"""if possboard[rows - y][j] == 0:
+																									score -= .01"""
 						y += 1
-		#print "Score 2: ", score
+			if np.count_nonzero(board[i])>0:
+				rowcount.append(np.count_nonzero(board[i]))
+		if rowcount != []:
+			rowcountscore = np.average(rowcount)**2
+		else:
+			rowcountscore= 0.
+		print "rowcountscore = "+ str(rowcountscore)
+		score+=rowcountscore
+		print "Score 2: ", score
+		print score		
 		return score
 
 	def get_board_state(self, board):
@@ -463,22 +474,22 @@ class TetrisApp(object):
 		for row in transpose:
 			# print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
-		print state
+		#print state
 		row = rows-max(state)
 
 		if max(state) >3:
 
 			array = np.array(board[row:row+4])
-			if array ==[]:
-				print "error"
+			#if array ==[]:
+			#	print "error"
 			array[array >0] = 1
 		else: 
-			print "hi"
+			#print "hi"
 			array = np.array(board[rows-4:rows])
 			array[array >0] = 1
 
 
-		print array
+		#print array
 		return array
 		
 
