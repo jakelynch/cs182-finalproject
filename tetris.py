@@ -343,7 +343,7 @@ class TetrisApp(object):
 						except: 
 							print "Oops thats an error"
 							
-						#print x,y
+						# print x,y
 						#print stone
 						# print "copied board: ", board, "\n"
 						# print "board: ", board, "\n"
