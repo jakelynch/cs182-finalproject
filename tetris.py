@@ -334,7 +334,7 @@ class TetrisApp(object):
 			#print "actions: ", actions
 			for x in range(cols-len(stone[0])):
 				for y in range(rows):
-					if check_collision(board, stone, (x, y)):
+					if check_collision(board, stone, (x, y-len(stone))):
 						hyp_board = copy.deepcopy(self.Tetris.board)
 						#print type(hyp_board)
 						try:
@@ -347,8 +347,8 @@ class TetrisApp(object):
 						except: 
 							print "Oops thats an error"
 							
-						# print x,y
-						#print stone
+						print x,y
+						print stone
 						# print "copied board: ", board, "\n"
 						# print "board: ", board, "\n"
 						# print join_matrixes(hyp_board, self.stone, (x,y))
