@@ -319,7 +319,7 @@ class TetrisApp(object):
 		make it so that this function is run once when a new stone appears, then place_brick runs until the
 		brick is placed then the game will call a new stone and the process will repeat"""
 
-		heuristicvals = []
+		
 		bestxforrot = []
 		bestvalforrot = []
 		rotations = []
@@ -332,8 +332,11 @@ class TetrisApp(object):
 		for stone in rotations:
 			actions = self.get_legal_actions(stone)
 			#print "actions: ", actions
+			heuristicvals = []
 			for x in range(cols-len(stone[0])):
-				for y in range(rows):
+				differencearray= []
+				for y in range(len(stone),rows):
+
 					if check_collision(board, stone, (x, y)):
 						hyp_board = copy.deepcopy(self.Tetris.board)
 						#print type(hyp_board)
@@ -343,7 +346,7 @@ class TetrisApp(object):
 							#print "matrix ", join_matrixes(hyp_board, stone, (x,y))
 							difference = self.maxrow(join_matrixes(hyp_board, stone, (x,y)))- self.maxrow(origboard)
 							
-							heuristicvals.append(difference)
+							differencearray.append(difference)
 						except: 
 							print "Oops thats an error"
 							
@@ -352,14 +355,17 @@ class TetrisApp(object):
 						# print "copied board: ", board, "\n"
 						# print "board: ", board, "\n"
 						# print join_matrixes(hyp_board, self.stone, (x,y))
-			print max(heuristicvals)
+			#print max(heuristicvals)
+				heuristicvals.append(max(differencearray))
 			bestvalforrot.append(max(heuristicvals))
+			print "length is ", len(heuristicvals)
 			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
 
 		bestrot = bestvalforrot.index(max(bestvalforrot))
 		#print "we return ", rotations[bestrot], bestxforrot[bestrot]
+		print bestrot
 		action = rotations[bestrot], bestxforrot[bestrot]
-		print action
+		print "action is", action
 		return action
 
 	def get_legal_actions(self, stone):
