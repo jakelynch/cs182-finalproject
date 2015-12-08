@@ -42,7 +42,7 @@
 from random import randrange as rand
 import pygame, sys, copy
 import  random,util,math
-import qlearningagent
+##import qlearningagent
 from copy import deepcopy
 # The configuration
 cell_size =	18
@@ -151,6 +151,7 @@ class TetrisApp(object):
 		# replace this line so that it always starts with the most troublesome piece
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.init_game()
+		#self.Q = qlearningagent.QLearningAgent()
 	
 	def new_stone(self):
 		# Where we will have to insert the remainder of our adverserial function, right now it just chooses
@@ -467,76 +468,13 @@ class TetrisApp(object):
 		return  board3
 
 
-	def run(self):
-		key_actions = {
-			'ESCAPE':	self.quit,
-			'LEFT':		lambda:self.move(-1),
-			'RIGHT':		lambda:self.move(+1),
-			'DOWN':		lambda:self.drop(True),
-			'UP':		self.rotate_stone,
-			'SPACE':		self.toggle_pause,
-			'SPACE':	self.start_game,
-			'RETURN':	self.insta_drop
-		}
-		Q = qlearningagent.QLearningAgent()
-		self.gameover = False
-		self.paused = False
-		print self.board
-		
-		dont_burn_my_cpu = pygame.time.Clock()
-		while 1:
-			# print self.stone
-			# print self.stone_x
-			# print self.stone_y
-		
-			self.screen.fill((0,0,0))
-			if self.gameover:
-				self.center_msg("""Game Over!\nYour score: %d
-Press space to continue""" % self.score)
-			else:
-				if self.paused:
-					self.center_msg("Paused")
-				else:
-					pygame.draw.line(self.screen,
-						(255,255,255),
-						(self.rlim+1, 0),
-						(self.rlim+1, self.height-1))
-					self.disp_msg("Next:", (
-						self.rlim+cell_size,
-						2))
-					self.disp_msg("Score: %d\n\nLevel: %d\
-\nLines: %d" % (self.score, self.level, self.lines),
-						(self.rlim+cell_size, cell_size*5))
-					self.draw_matrix(self.bground_grid, (0,0))
-					self.draw_matrix(self.board, (0,0))
-					self.draw_matrix(self.stone,
-						(self.stone_x, self.stone_y))
-					self.draw_matrix(self.next_stone,
-						(cols+1,2))
-			pygame.display.update()
-
-			#self.ideal_place()
-			legalactions = self.get_legal_actions(self.stone)
-			rot, col =Q.getAction((self.stone, self.get_board_state(self.board)),legalactions)
-			self.place_brick(rotdict[str(rot)],col)
-			for event in pygame.event.get():
-				if event.type == pygame.USEREVENT+1:
-					pass
-				#	self.drop(False)
-				elif event.type == pygame.QUIT:
-					self.quit()
-				elif event.type == pygame.KEYDOWN:
-					for key in key_actions:
-						if event.key == eval("pygame.K_"
-						+key):
-							key_actions[key]()
-					
-			dont_burn_my_cpu.tick(maxfps)
 
 
 
-
+"""
 
 if __name__ == '__main__':
 	App = TetrisApp()
-	App.run()
+	for i in range(10):
+		App.run()
+"""

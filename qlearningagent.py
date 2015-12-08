@@ -1,10 +1,94 @@
 import random,util,math
-import tetris
+from tetris import TetrisApp
+from random import randrange as rand
+import pygame, sys, copy
+import  random,util,math
+##import qlearningagent
+from copy import deepcopy
 
-class QLearningAgent():
-	def __init__(self, alpha = 1/100):
-		self.qval = util.Counter()
-		self.alpha= alpha
+cell_size = 18
+cols =    10 
+rows =    22
+maxfps =  30
+
+colors = [
+(0,   0,   0  ),
+(255, 85,  85),
+(100, 200, 115),
+(120, 108, 245),
+(255, 140, 50 ),
+(50,  120, 52 ),
+(146, 202, 73 ),
+(150, 161, 218 ),
+(35,  35,  35) # Helper color for background grid
+]
+
+# Define the shapes of the single parts
+tetris_shapes = [
+  [[1, 1, 1],
+   [0, 1, 0]],
+  
+  [[0, 2, 2],
+   [2, 2, 0]],
+  
+  [[3, 3, 0],
+   [0, 3, 3]],
+  
+  [[4, 0, 0],
+   [4, 4, 4]],
+  
+  [[0, 0, 5],
+   [5, 5, 5]],
+  
+  [[6, 6, 6, 6]],
+  
+  [[7, 7],
+   [7, 7]]
+]
+
+
+def rotate_clockwise(shape):
+  return [ [ shape[y][x]
+      for y in xrange(len(shape)) ]
+    for x in xrange(len(shape[0]) - 1, -1, -1) ]
+
+rotdict ={}
+for stone in tetris_shapes:
+  rots = 0
+  rotdict[str(stone)]= 0
+  while str(rotate_clockwise(stone)) not in rotdict:
+    stone = rotate_clockwise(stone)
+    rots+=1
+    rotdict[str(stone)]= rots
+#print rotdict
+def check_collision(board, shape, offset):
+  off_x, off_y = offset
+  for cy, row in enumerate(shape):
+    for cx, cell in enumerate(row):
+      try:
+        if cell and board[ cy + off_y ][ cx + off_x ]:
+          return True
+      except IndexError:
+        return True
+  return False
+
+def remove_row(board, row):
+  del board[row]
+  return [[0 for i in xrange(cols)]] + board
+  
+def join_matrixes(mat1, mat2, mat2_off):
+  #print "mat1 = " + str(mat1), "mat2 = " + str(mat2), "mat2_off = " + str(mat2_off)
+  off_x, off_y = mat2_off
+  for cy, row in enumerate(mat2):
+    for cx, val in enumerate(row):
+      mat1[cy+off_y-1 ][cx+off_x] += val
+  return mat1
+
+def new_board():
+  board = [ [ 0 for x in xrange(cols+1) ]
+      for y in xrange(rows) ]
+  board += [[ 1 for x in xrange(cols)] for i in xrange(1)]
+  return board
 
 
 
@@ -26,7 +110,7 @@ class Agent:
         raiseNotDefined()
 
 
-class QLearningAgent(Agent):
+class QLearningAgent(TetrisApp):
     """
       Q-Learning Agent
 
@@ -53,6 +137,7 @@ class QLearningAgent(Agent):
         self.alpha=alpha
         self.epsilon=epsilon
         self.discount=gamma
+        self.Tetris= TetrisApp()
 
         "*** YOUR CODE HERE ***"
 
@@ -103,7 +188,7 @@ class QLearningAgent(Agent):
           val= self.getQValue(state,action)
         return val
 
-    def computeActionFromQValues(self, state,legalActions):
+    def computeActionFromQValues(self, state):
         """
           Compute the best action to take in a state.  Note that if there
           are no legal actions, which is the case at the terminal state,
@@ -112,17 +197,20 @@ class QLearningAgent(Agent):
         "*** YOUR CODE HERE ***"
         
         finalaction=None
+        legalActions = self.Tetris.get_legal_actions(state)
+
         if len(legalActions)!=0:
           maxval= -999999
           #print type(legalActions)
-          for action in legalActions:
+          for action in self.Tetris.get_legal_actions(state):
             #print action, type(action),state
             Qval=self.getQValue(state,action)
             if Qval>=maxval:
               maxval=Qval
               finalaction=action
         return finalaction
-    def getAction(self, state, actions):
+
+    def getAction(self, state):
         """
           Compute the action to take in the current state.  With
           probability self.epsilon, we should take a random action and
@@ -134,14 +222,14 @@ class QLearningAgent(Agent):
           HINT: To pick randomly from a list, use random.choice(list)
         """
         # Pick Action
-        legalActions = actions
+        legalActions = self.Tetris.get_legal_actions(state)
         action = None
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
                 action = random.choice(legalActions)
               else:
-                action = self.computeActionFromQValues(state,legalActions)
+                action = self.computeActionFromQValues(state)
         return action
 
     def update(self, state, action, nextState, reward):
@@ -161,3 +249,75 @@ class QLearningAgent(Agent):
 
     def getValue(self, state):
         return self.computeValueFromQValues(state)
+
+    def run(self):
+      key_actions = {
+        'ESCAPE': self.Tetris.quit,
+        'LEFT':   lambda:self.Tetris.move(-1),
+        'RIGHT':    lambda:self.Tetris.move(+1),
+        'DOWN':   lambda:self.Tetris.drop(True),
+        'UP':   self.Tetris.rotate_stone,
+        'SPACE':    self.Tetris.toggle_pause,
+        'SPACE':  self.Tetris.start_game,
+        'RETURN': self.Tetris.insta_drop
+      }
+      
+      self.Tetris.gameover = False
+      self.Tetris.paused = False
+      #print self.Tetris.board
+      
+      dont_burn_my_cpu = pygame.time.Clock()
+      while 1:
+        # print self.Tetris.stone
+        # print self.Tetris.stone_x
+        # print self.Tetris.stone_y
+      
+        self.Tetris.screen.fill((0,0,0))
+        if self.Tetris.gameover:
+          self.Tetris.center_msg("""Game Over!\nYour score: %d
+  Press space to continue""" % self.Tetris.score)
+        else:
+          if self.Tetris.paused:
+            self.Tetris.center_msg("Paused")
+          else:
+            pygame.draw.line(self.Tetris.screen,
+              (255,255,255),
+              (self.Tetris.rlim+1, 0),
+              (self.Tetris.rlim+1, self.Tetris.height-1))
+            self.Tetris.disp_msg("Next:", (
+              self.Tetris.rlim+cell_size,
+              2))
+            self.Tetris.disp_msg("Score: %d\n\nLevel: %d\
+  \nLines: %d" % (self.Tetris.score, self.Tetris.level, self.Tetris.lines),
+              (self.Tetris.rlim+cell_size, cell_size*5))
+            self.Tetris.draw_matrix(self.Tetris.bground_grid, (0,0))
+            self.Tetris.draw_matrix(self.Tetris.board, (0,0))
+            self.Tetris.draw_matrix(self.Tetris.stone,
+              (self.Tetris.stone_x, self.Tetris.stone_y))
+            self.Tetris.draw_matrix(self.Tetris.next_stone,
+              (cols+1,2))
+        pygame.display.update()
+
+        #self.Tetris.ideal_place()
+        prevboard = deepcopy(self.Tetris.board)
+        legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
+        rot, col =self.getAction(self.Tetris.stone)
+        self.Tetris.place_brick(rotdict[str(rot)],col)
+        self.update(prevboard, (rot,col), self.Tetris.board, self.Tetris.heuristic(self.Tetris.board)) 
+        for event in pygame.event.get():
+          if event.type == pygame.USEREVENT+1:
+            pass
+          # self.Tetris.drop(False)
+          elif event.type == pygame.QUIT:
+            self.Tetris.quit()
+          elif event.type == pygame.KEYDOWN:
+            for key in key_actions:
+              if event.key == eval("pygame.K_"
+              +key):
+                key_actions[key]()
+            
+        dont_burn_my_cpu.tick(maxfps)
+
+if __name__ == '__main__':
+  Q=  QLearningAgent()
+  Q.run()
