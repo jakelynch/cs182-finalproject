@@ -130,7 +130,7 @@ class QLearningAgent(TetrisApp):
         - self.getLegalActions(state)
           which returns legal actions for a state
     """
-    def __init__(self, alpha = 1./100., gamma = .5, epsilon = .001):
+    def __init__(self, alpha = 0.001, gamma = .5, epsilon = .001):
         "You can initialize Q-values here..."
         "reinforcementAgent.__init__(self, **args)"
         self.qval=util.Counter()
@@ -173,6 +173,11 @@ class QLearningAgent(TetrisApp):
         if hash(str((state, action))) not in self.qval:
           #print state, action
           self.qval[hash(str((state,action)))]=0.0
+          #print "we're getting this"
+        #if self.qval[hash(str((state,action)))]!=0:
+          # print "Qval=",self.qval[hash(str((state,action)))] 
+        elif self.qval[hash(str((state,action)))]>0:
+          print "we're getting somthing else",  self.qval[hash(str((state,action)))]
         return self.qval[hash(str((state,action)))]
 
     def computeValueFromQValues(self, state):
@@ -204,13 +209,19 @@ class QLearningAgent(TetrisApp):
         if len(legalActions)!=0:
           maxval= -999999
           #print type(legalActions)
+          #print "legalactions: ", self.Tetris.get_legal_actions(state[1])
           for action in self.Tetris.get_legal_actions(state[1]):
             #print action, type(action),state
             Qval=self.getQValue(state,action)
-            #print Qval
+
+            
             if Qval>=maxval:
               maxval=Qval
               finalaction=action
+              if maxval> 0:
+                print "maxval ",str(maxval)
+        if maxval>0:
+          print "Qval=" +str(maxval)
         return finalaction
 
     def getAction(self, state):
@@ -248,6 +259,7 @@ class QLearningAgent(TetrisApp):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
+        #print reward
         self.qval[hash(str((state,action)))]+= self.alpha*(reward+self.discount * self.computeValueFromQValues(nextState) - self.getQValue(state,action))
   
     def getPolicy(self, state):

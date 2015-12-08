@@ -124,7 +124,7 @@ def join_matrixes(mat1, mat2, mat2_off):
 	return mat1
 
 def new_board():
-	board = [ [ 0 for x in xrange(cols+1) ]
+	board = [ [ 0 for x in xrange(cols) ]
 			for y in xrange(rows) ]
 	board += [[ 1 for x in xrange(cols)] for i in xrange(1)]
 	return board
@@ -310,7 +310,7 @@ class TetrisApp(object):
 				self.move(-1)
 
 		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
-		self.drop(True)
+		self.insta_drop()
  
 
 	def ideal_place(self):
@@ -427,17 +427,17 @@ class TetrisApp(object):
 		for i in range(1,cols-1):
 			diffsq.append(self.difference_squared(possboard,i))
 		diffsqsum = sum(diffsq)/10.
-		print "diffsqsum =" +str(diffsqsum)
-		avgheight = self.average_height(possboard)/4.
-		print "avgheight =" +str(avgheight)
+		#print "diffsqsum =" +str(diffsqsum)
+		avgheight = -2+self.average_height(possboard)/4.
+		#print "avgheight =" +str(avgheight)
 		score = -(diffsqsum+avgheight**3)
 
 		#print "Score 1: ", score
 		rowcount=[]
 		for i in range(rows):
-			"""for x in possboard[i]:
-													if x == 0:
-														score -= .01"""
+			for x in possboard[i]:
+				if x == 0:
+					score -= .01
 			# Adds for each row that will be removed
 			if 0 not in possboard[i]:
 				score += 50.0
@@ -449,8 +449,8 @@ class TetrisApp(object):
 					y = 0
 					while y < (rows - i):
 
-						"""if possboard[rows - y][j] == 0:
-																									score -= .01"""
+						if possboard[rows - y][j] == 0:
+							score -= .01
 						y += 1
 			if np.count_nonzero(board[i])>0:
 				rowcount.append(np.count_nonzero(board[i]))
@@ -458,14 +458,17 @@ class TetrisApp(object):
 			rowcountscore = np.average(rowcount)**2
 		else:
 			rowcountscore= 0.
-		print "rowcountscore = "+ str(rowcountscore)
+		# print "rowcountscore = "+ str(rowcountscore)
 		score+=rowcountscore
-		print "Score 2: ", score
-		print score		
+		#print "Score 2: ", score
+		score +=100
+		# if score > 0: 
+			# print "Score:", score		
 		return score
 
 	def get_board_state(self, board):
 		
+		#print len(board),len(board[0])
 		transpose= self.arraytranspose(board)
 		#print len(transpose)
 
@@ -487,21 +490,30 @@ class TetrisApp(object):
 			#print "hi"
 			array = np.array(board[rows-4:rows])
 			array[array >0] = 1
-
-
-		#print array
-		return array
+		#print len(array),len(array[0])
+		posed = self.arraytranspose(array)
+		finalarray = []
+		for row in posed:
+			finalarray.append(next((4-i for i, x in enumerate(row) if x>0), 0))
+		#print  finalarray
+		return finalarray
 		
+	
+
 
 	def arraytranspose(self, board):
 		board2 = deepcopy(board)
 		# print board2
-		board3 = [[0 for i in range(rows)] for i in range(cols)]
-		# print board3
-		for i in range(rows):
-			for j in range(cols):
+		board3 = [[0 for i in range(len(board2))] for i in range(len(board2[0]))]
+		# print len(board2),len(board2[0])
+		# print len(board3),len(board3[0])
+		# print len(board),len(board[0])
+		for i in range(len(board2[0])):
+			for j in range(len(board2)):
+				
 				#print i,j
-				board3[j][i] = board2[i][j]
+				# print i,j, board2[j][i]
+				board3[i][j] = board2[j][i]
 
 		# print board3
 		return  board3
