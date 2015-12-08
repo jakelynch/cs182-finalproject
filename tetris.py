@@ -381,8 +381,8 @@ class TetrisApp(object):
 
 
 	def average_height(board):
-		board_array = np.array(board)
-		board_array_transpose=board_array.transpose()
+		#board_array = np.array(board)
+		board_array_transpose=self.arraytranspose(board_array)
 		Sum= 0 
 		for row in board_array_transpose:
 			for i in range(len(row)):
@@ -392,8 +392,8 @@ class TetrisApp(object):
 		return float(Sum)/float(len(board))
 
 	def difference_squared(board, column):
-		board_array = np.array(board)
-		transpose=board_array.transpose()
+		#board_array = np.array(board)
+		transpose=self.arraytranspose(board_array)
 		
 		Sum1= 0
 		Sum2 = 0
@@ -423,6 +423,7 @@ class TetrisApp(object):
 		# 2) Will there be empty spaces under the placed block
 		score = 0
 		#print "pass"
+
 		for i in range(rows):
 			# Plusses for each row that will be removed
 			if 0 not in possboard[i]:
