@@ -38,7 +38,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-
+import numpy as np
 from random import randrange as rand
 import pygame, sys, copy
 import  random,util,math
@@ -430,7 +430,7 @@ class TetrisApp(object):
 		avgheight = self.average_height(possboard)
 		score = -(diffsqsum+avgheight)
 
-		print "Score 1: ", score
+		#print "Score 1: ", score
 
 		for i in range(rows):
 			for x in possboard[i]:
@@ -450,21 +450,37 @@ class TetrisApp(object):
 						if possboard[rows - y][j] == 0:
 							score -= 15.0
 						y += 1
-		print "Score 2: ", score
+		#print "Score 2: ", score
 		return score
 
 	def get_board_state(self, board):
 		
 		transpose= self.arraytranspose(board)
-
+		#print len(transpose)
 
 		state = []
 
 		for row in transpose:
 			# print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
+		print state
+		row = rows-max(state)
+
+		if max(state) >3:
+
+			array = np.array(board[row:row+4])
+			if array ==[]:
+				print "error"
+			array[array >0] = 1
+		else: 
+			print "hi"
+			array = np.array(board[rows-4:rows])
+			array[array >0] = 1
+
+
+		print array
+		return array
 		
-		return state
 
 	def arraytranspose(self, board):
 		board2 = deepcopy(board)

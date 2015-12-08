@@ -235,7 +235,7 @@ class QLearningAgent(TetrisApp):
               else:
                 action = self.computeActionFromQValues(state)
 
-        print action
+        #print action
         return action
 
     def update(self, state, action, nextState, reward):
@@ -280,19 +280,19 @@ class QLearningAgent(TetrisApp):
       #print self.Tetris.board
       
       dont_burn_my_cpu = pygame.time.Clock()
-      rot, col = self.getAction((self.Tetris.board,self.Tetris.stone))
-      prevboard = deepcopy(self.Tetris.board)
+      rot, col = self.getAction((self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone))
+      prevboard = self.Tetris.get_board_state(self.Tetris.board)
       while 1:
         # print self.Tetris.stone
         # print self.Tetris.stone_x
         # print self.Tetris.stone_y
-        print "rot,col=" +str((rot,col))
-        self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.board,self.Tetris.stone), self.Tetris.heuristic(self.Tetris.board)) 
+        #print "rot,col=" +str((rot,col))
+        self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.heuristic(self.Tetris.board)) 
 
         piece = self.Tetris.stone
-        prevboard = deepcopy(self.Tetris.board)
+        prevboard = self.Tetris.get_board_state(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
-        rot, col =self.getAction((self.Tetris.board, self.Tetris.stone))
+        rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
 
         while piece == self.Tetris.stone:
           self.Tetris.screen.fill((0,0,0))
