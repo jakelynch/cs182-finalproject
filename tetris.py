@@ -429,13 +429,13 @@ class TetrisApp(object):
 		diffsqsum = sum(diffsq)
 		avgheight = self.average_height(possboard)
 		score = -(diffsqsum+avgheight)
-		#print score
-		
-		return score
-		"""		for i in range(rows):
+
+		print "Score 1: ", score
+
+		for i in range(rows):
 			# Plusses for each row that will be removed
 			if 0 not in possboard[i]:
-				score += 2
+				score += 50.0
 
 			# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
 			# found because empty spaces under blocks are undesirable
@@ -445,10 +445,10 @@ class TetrisApp(object):
 					while y < (rows - i):
 
 						if possboard[rows - y][j] == 0:
-							score -= 1
+							score -= 15.0
 						y += 1
-		# print score
-		return score"""
+		print "Score 2: ", score
+		return score
 
 	def get_board_state(self, board):
 		

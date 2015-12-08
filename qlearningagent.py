@@ -187,7 +187,7 @@ class QLearningAgent(TetrisApp):
         action=self.computeActionFromQValues(state)
         if action != None:
           val= self.getQValue(state,action)
-        print val
+        #print val
         return val
 
     def computeActionFromQValues(self, state):
@@ -199,14 +199,15 @@ class QLearningAgent(TetrisApp):
         "*** YOUR CODE HERE ***"
         
         finalaction=None
-        legalActions = self.Tetris.get_legal_actions(state)
+        legalActions = self.Tetris.get_legal_actions(state[1])
 
         if len(legalActions)!=0:
           maxval= -999999
           #print type(legalActions)
-          for action in self.Tetris.get_legal_actions(state):
+          for action in self.Tetris.get_legal_actions(state[1]):
             #print action, type(action),state
             Qval=self.getQValue(state,action)
+            #print Qval
             if Qval>=maxval:
               maxval=Qval
               finalaction=action
@@ -224,7 +225,7 @@ class QLearningAgent(TetrisApp):
           HINT: To pick randomly from a list, use random.choice(list)
         """
         # Pick Action
-        legalActions = self.Tetris.get_legal_actions(state)
+        legalActions = self.Tetris.get_legal_actions(state[1])
         action = None
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
@@ -233,6 +234,8 @@ class QLearningAgent(TetrisApp):
                 action = random.choice(legalActions)
               else:
                 action = self.computeActionFromQValues(state)
+
+        print action
         return action
 
     def update(self, state, action, nextState, reward):
@@ -277,18 +280,19 @@ class QLearningAgent(TetrisApp):
       #print self.Tetris.board
       
       dont_burn_my_cpu = pygame.time.Clock()
-      rot, col = self.getAction(self.Tetris.stone)
+      rot, col = self.getAction((self.Tetris.board,self.Tetris.stone))
       prevboard = deepcopy(self.Tetris.board)
       while 1:
         # print self.Tetris.stone
         # print self.Tetris.stone_x
         # print self.Tetris.stone_y
-        self.update(prevboard, (rot,col), self.Tetris.board, self.Tetris.heuristic(self.Tetris.board)) 
+        print "rot,col=" +str((rot,col))
+        self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.board,self.Tetris.stone), self.Tetris.heuristic(self.Tetris.board)) 
 
         piece = self.Tetris.stone
         prevboard = deepcopy(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
-        rot, col =self.getAction(self.Tetris.stone)
+        rot, col =self.getAction((self.Tetris.board, self.Tetris.stone))
 
         while piece == self.Tetris.stone:
           self.Tetris.screen.fill((0,0,0))
