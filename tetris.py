@@ -99,7 +99,7 @@ for stone in tetris_shapes:
 		stone = rotate_clockwise(stone)
 		rots+=1
 		rotdict[str(stone)]= rots
-print rotdict
+#print rotdict
 def check_collision(board, shape, offset):
 	off_x, off_y = offset
 	for cy, row in enumerate(shape):
@@ -136,6 +136,7 @@ class TetrisApp(object):
 		self.width = cell_size*(cols+6)
 		self.height = cell_size*rows
 		self.rlim = cell_size*cols
+		self.boardprev = 0
 		self.bground_grid = [[ 8 if x%2==y%2 else 0 for x in xrange(cols)] for y in xrange(rows)]
 		
 		self.default_font =  pygame.font.Font(
@@ -330,7 +331,7 @@ class TetrisApp(object):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 		for stone in rotations:
 			actions = self.get_legal_actions(stone)
-			print "actions: ", actions
+			#print "actions: ", actions
 			for x in range(cols-len(stone[0])):
 				for y in range(rows):
 					if check_collision(board, stone, (x, y)):
@@ -359,7 +360,7 @@ class TetrisApp(object):
 		rotations.append(self.stone)
 		for i in range(1,3):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
-			print rotate_clockwise(rotations[i-1])
+			#print rotate_clockwise(rotations[i-1])
 		for rot in rotations:
 			for x in range(cols - len(stone[0])):
 				actions.append((rot, x))
@@ -380,9 +381,9 @@ class TetrisApp(object):
 		Q.computeActionFromQ"""
 
 
-	def average_height(board):
+	def average_height(self,board):
 		#board_array = np.array(board)
-		board_array_transpose=self.arraytranspose(board_array)
+		board_array_transpose=self.arraytranspose(board)
 		Sum= 0 
 		for row in board_array_transpose:
 			for i in range(len(row)):
@@ -391,9 +392,9 @@ class TetrisApp(object):
 				Sum +=1
 		return float(Sum)/float(len(board))
 
-	def difference_squared(board, column):
+	def difference_squared(self,board, column):
 		#board_array = np.array(board)
-		transpose=self.arraytranspose(board_array)
+		transpose=self.arraytranspose(board)
 		
 		Sum1= 0
 		Sum2 = 0
@@ -423,8 +424,16 @@ class TetrisApp(object):
 		# 2) Will there be empty spaces under the placed block
 		score = 0
 		#print "pass"
+		diffsq=[]
+		for i in range(1,cols-1):
+			diffsq.append(self.difference_squared(possboard,i))
+		diffsqsum = sum(diffsq)
+		avgheight = self.average_height(possboard)
+		score -=diffsqsum+avgheight
 
-		for i in range(rows):
+		
+		return score
+		"""		for i in range(rows):
 			# Plusses for each row that will be removed
 			if 0 not in possboard[i]:
 				score += 2
@@ -440,7 +449,7 @@ class TetrisApp(object):
 							score -= 1
 						y += 1
 		# print score
-		return score
+		return score"""
 
 	def get_board_state(self, board):
 		
@@ -462,7 +471,7 @@ class TetrisApp(object):
 		# print board3
 		for i in range(rows):
 			for j in range(cols):
-				print i,j
+				#print i,j
 				board3[j][i] = board2[i][j]
 
 		# print board3

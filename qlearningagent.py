@@ -227,6 +227,7 @@ class QLearningAgent(TetrisApp):
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
+                
                 action = random.choice(legalActions)
               else:
                 action = self.computeActionFromQValues(state)
@@ -250,7 +251,7 @@ class QLearningAgent(TetrisApp):
     def getValue(self, state):
         return self.computeValueFromQValues(state)
 
-    def run(self):
+    def run(self,n):
       key_actions = {
         'ESCAPE': self.Tetris.quit,
         'LEFT':   lambda:self.Tetris.move(-1),
@@ -261,6 +262,10 @@ class QLearningAgent(TetrisApp):
         'SPACE':  self.Tetris.start_game,
         'RETURN': self.Tetris.insta_drop
       }
+      n+=1
+      try: print self.Tetris.board-self.Tetris.boardprev
+      self.Tetris.boardprev=self.Tetris.board
+      self.epsilon = 1./float(n+1)
       
       self.Tetris.gameover = False
       self.Tetris.paused = False
@@ -276,6 +281,10 @@ class QLearningAgent(TetrisApp):
         if self.Tetris.gameover:
           self.Tetris.center_msg("""Game Over!\nYour score: %d
   Press space to continue""" % self.Tetris.score)
+          if n< 10:
+            self.Tetris.start_game()
+          else: 
+            self.Tetris.quit()
         else:
           if self.Tetris.paused:
             self.Tetris.center_msg("Paused")
@@ -320,4 +329,5 @@ class QLearningAgent(TetrisApp):
 
 if __name__ == '__main__':
   Q=  QLearningAgent()
-  Q.run()
+  for i in range(10):
+    Q.run(i+1)
