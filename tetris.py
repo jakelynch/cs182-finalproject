@@ -383,14 +383,30 @@ class TetrisApp(object):
 
 	def average_height(self,board):
 		#board_array = np.array(board)
+		#print len(board),len(board[0])
+		transpose= self.arraytranspose(board)
+		#print len(transpose)
+
+		state = []
+
+		for row in transpose:
+			# print row
+			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
+		val = float(sum(state))/float(len(state))
+		print val
+		return val
 		board_array_transpose=self.arraytranspose(board)
-		Sum= 0 
+		Sum= 0
+		print "board_array_transpose = ", board_array_transpose 
 		for row in board_array_transpose:
+
 			for i in range(len(row)):
-				if row[i] > 0:
+				if row[cols-i] > 0:
 					break
 				Sum +=1
-		return float(Sum)/float(len(board))
+		val = float(Sum)/float(len(board))
+		print val
+		return val
 
 	def difference_squared(self,board, column):
 		#board_array = np.array(board)
@@ -426,12 +442,13 @@ class TetrisApp(object):
 		diffsq=[]
 		for i in range(1,cols-1):
 			diffsq.append(self.difference_squared(possboard,i))
-		diffsqsum = sum(diffsq)/10.
+		diffsqsum = sum(diffsq)
 		#print "diffsqsum =" +str(diffsqsum)
-		avgheight = -2+self.average_height(possboard)/4.
+		avgheight =self.average_height(possboard)
 		#print "avgheight =" +str(avgheight)
-		score = -(diffsqsum+avgheight**3)
 
+		score = -(diffsqsum+avgheight-5)
+		#print "score = ", score, " diffsqsum = ", diffsqsum, "avgheight =" , avgheight
 		#print "Score 1: ", score
 		rowcount=[]
 		for i in range(rows):
@@ -452,19 +469,21 @@ class TetrisApp(object):
 						if possboard[rows - y][j] == 0:
 							score -= .01
 						y += 1
+			#print "score 2= ", score
 			if np.count_nonzero(board[i])>0:
 				rowcount.append(np.count_nonzero(board[i]))
 		if rowcount != []:
-			rowcountscore = np.average(rowcount)**2
+			rowcountscore = (2*np.average(rowcount))**5
 		else:
 			rowcountscore= 0.
 		# print "rowcountscore = "+ str(rowcountscore)
 		score+=rowcountscore
 		#print "Score 2: ", score
-		score +=100
+		#score += 1000.
 		# if score > 0: 
 			# print "Score:", score		
 		return score
+
 
 	def get_board_state(self, board):
 		

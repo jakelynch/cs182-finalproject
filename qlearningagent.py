@@ -1,4 +1,5 @@
 import random,util,math
+import tetris
 from tetris import TetrisApp
 from random import randrange as rand
 import pygame, sys, copy
@@ -130,7 +131,7 @@ class QLearningAgent(TetrisApp):
         - self.getLegalActions(state)
           which returns legal actions for a state
     """
-    def __init__(self, alpha = 0.001, gamma = .5, epsilon = .001):
+    def __init__(self, alpha = 0.01, gamma = .5, epsilon = .001):
         "You can initialize Q-values here..."
         "reinforcementAgent.__init__(self, **args)"
         self.qval=util.Counter()
@@ -241,8 +242,11 @@ class QLearningAgent(TetrisApp):
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
-                
-                action = random.choice(legalActions)
+                maxval = 0
+                for action in legalactions:
+                  testboard = deepcopy(self.Tetris.board)
+                  self.Tetris.join_matrixes(testboard, action[0],action[1])
+                  maxval = 
               else:
                 action = self.computeActionFromQValues(state)
 
@@ -279,13 +283,14 @@ class QLearningAgent(TetrisApp):
         'SPACE':  self.Tetris.start_game,
         'RETURN': self.Tetris.insta_drop
       }
-      n+=1
+
       """ try: 
                        print self.Tetris.board-self.boardprev
                      except:
                        pass"""
+      self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
-      self.epsilon = 1./float(n/+1.)
+      self.epsilon = 1./float(15*math.log(n)+1.)
       
       self.Tetris.gameover = False
       self.Tetris.paused = False
@@ -294,7 +299,11 @@ class QLearningAgent(TetrisApp):
       dont_burn_my_cpu = pygame.time.Clock()
       rot, col = self.getAction((self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone))
       prevboard = self.Tetris.get_board_state(self.Tetris.board)
-      while 1:
+      n+=1
+      print n
+      #while 1:
+      while not(self.Tetris.gameover):
+
         # print self.Tetris.stone
         # print self.Tetris.stone_x
         # print self.Tetris.stone_y
@@ -307,6 +316,7 @@ class QLearningAgent(TetrisApp):
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
 
         while piece == self.Tetris.stone:
+ 
           self.Tetris.screen.fill((0,0,0))
           if self.Tetris.gameover:
             self.Tetris.center_msg("""Game Over!\nYour score: %d
@@ -330,6 +340,7 @@ class QLearningAgent(TetrisApp):
     \nLines: %d" % (self.Tetris.score, self.Tetris.level, self.Tetris.lines),
                 (self.Tetris.rlim+cell_size, cell_size*5))
               self.Tetris.draw_matrix(self.Tetris.bground_grid, (0,0))
+              #print self.Tetris.board
               self.Tetris.draw_matrix(self.Tetris.board, (0,0))
               self.Tetris.draw_matrix(self.Tetris.stone,
                 (self.Tetris.stone_x, self.Tetris.stone_y))
@@ -359,5 +370,5 @@ class QLearningAgent(TetrisApp):
 
 if __name__ == '__main__':
   Q=  QLearningAgent()
-  for i in range(10):
+  for i in range(10000):
     Q.run(i+1)
