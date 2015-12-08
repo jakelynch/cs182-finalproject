@@ -83,8 +83,8 @@ class QLearningAgent(Agent):
         """
         "*** YOUR CODE HERE ***"
         if (state, action) not in self.qval:
-          self.qval[(state,action)]=0.0
-        return self.qval[(state,action)]
+          self.qval[hash((state,action))]=0.0
+        return self.qval[hash(state,action)]
 
     def computeValueFromQValues(self, state):
         """
@@ -149,7 +149,7 @@ class QLearningAgent(Agent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        self.qval[(state,action)]+= self.alpha*(reward+self.discount * self.computeValueFromQValues(nextState) - self.getQValue(state,action))
+        self.qval[hash(state,action)]+= self.alpha*(reward+self.discount * self.computeValueFromQValues(nextState) - self.getQValue(state,action))
   
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)

@@ -348,9 +348,9 @@ class TetrisApp(object):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 		for stone in rotations:
 
-	def qlearning(self):
+	"""	def qlearning(self):
 		Q=qlearning.QLearningAgent()
-		Q.computeActionFromQ
+		Q.computeActionFromQ"""
 	def average_height(board):
 		board_array = np.array(board)
 		board_array_transpose=board_array.transpose()
