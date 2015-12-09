@@ -353,7 +353,7 @@ class QLearningAgent(TetrisApp):
                                                   legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
                                                   rot, col =self.getAction(self.Tetris.stone)
                                         """
-          self.Tetris.place_brick(rotdict[str(rot)],col)
+          self.Tetris.place_brick(rot,col)
           for event in pygame.event.get():
             if event.type == pygame.USEREVENT+1:
               pass
