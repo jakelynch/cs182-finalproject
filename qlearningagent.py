@@ -41,7 +41,7 @@ tetris_shapes = [
   [[0, 0, 5],
    [5, 5, 5]],
   
-  [[6, 6, 6, 6]],
+  #[[6, 6, 6, 6]],
   
   [[7, 7],
    [7, 7]]
@@ -131,7 +131,7 @@ class QLearningAgent(TetrisApp):
         - self.getLegalActions(state)
           which returns legal actions for a state
     """
-    def __init__(self, alpha = 0.01, gamma = .5, epsilon = .01):
+    def __init__(self, alpha = 0.01, gamma = .5, epsilon = 1):
         "You can initialize Q-values here..."
         "reinforcementAgent.__init__(self, **args)"
         self.qval=util.Counter()
@@ -289,7 +289,7 @@ class QLearningAgent(TetrisApp):
                        pass"""
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
-      self.epsilon = 1./float(15*math.log(n)+1.)
+      ##self.epsilon = 1./float(15*math.log(n)+1.)
       
       self.Tetris.gameover = False
       self.Tetris.paused = False

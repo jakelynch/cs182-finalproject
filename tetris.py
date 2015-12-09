@@ -123,7 +123,7 @@ def join_matrixes(mat1, mat2, mat2_off):
 		for cx, val in enumerate(row):
 			#print mat1[cy+off_y-1]
 			#print mat1[cy+off_y-1][cx+off_x-1]
-			mat1[cy+off_y-1	][cx+off_x] += val
+			mat1[cy+off_y-1][cx+off_x] += val
 	return mat1
 
 def new_board():
@@ -345,13 +345,13 @@ class TetrisApp(object):
 
 			# print "hyp_board:\n", hyp_board
 
-			new_board = join_matrixes(hyp_board, stone, (x,y))
+			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 			# print "new_board:\n", new_board
 			for i in range(len(new_board) ):
 				if 0 not in new_board[i] and not len(set(new_board[i])) <= 1:
 					#print "This action should clear a line"
 					return action
-			differencearray.append(self.toprow(join_matrixes(hyp_board, stone, (x,y)),self.Tetris.board))
+			differencearray.append(self.toprow(join_matrixes(hyp_board, rotpiece, (x,y)),self.Tetris.board))
 
 			# differencearray.append(self.maxrow(join_matrixes(hyp_board, stone, (x,y))) - self.maxrow(origboard))
 
@@ -607,7 +607,7 @@ class TetrisApp(object):
 			val3,val4 = len(row3[row3>0]),len(row4[row4>0])
 			if val1>0 :
 				print "val  ", (val3+val4)-(val2 + val1)
-				return (val3+val4)-(val1 + val2)
+				return (val3)-(val1 )
 		return 0.
 
 	def maxrow(self,board):
