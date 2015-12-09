@@ -4,6 +4,7 @@ from tetris import TetrisApp
 from random import randrange as rand
 import pygame, sys, copy
 import  random,util,math
+import matplotlib.pyplot as plt
 ##import qlearningagent
 from copy import deepcopy
 
@@ -41,7 +42,7 @@ tetris_shapes = [
   [[0, 0, 5],
    [5, 5, 5]],
   
-  [[6, 6, 6, 6]],
+  #[[6, 6, 6, 6]],
   
   [[7, 7],
    [7, 7]]
@@ -88,7 +89,7 @@ def join_matrixes(mat1, mat2, mat2_off):
 def new_board():
   board = [ [ 0 for x in xrange(cols+1) ]
       for y in xrange(rows) ]
-  board += [[ 1 for x in xrange(cols)] for i in xrange(1)]
+  board += [[ 9 for x in xrange(cols)] for i in xrange(1)]
   return board
 
 
@@ -131,7 +132,7 @@ class QLearningAgent(TetrisApp):
         - self.getLegalActions(state)
           which returns legal actions for a state
     """
-    def __init__(self, alpha = 0.01, gamma = .5, epsilon = .01):
+    def __init__(self, alpha = 0.01, gamma = .5, epsilon = 1):
         "You can initialize Q-values here..."
         "reinforcementAgent.__init__(self, **args)"
         self.qval=util.Counter()
@@ -289,7 +290,9 @@ class QLearningAgent(TetrisApp):
                        pass"""
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
-      self.epsilon = 1/10# 1./float(15*math.log(n)+1.)
+
+      #self.epsilon = 1/10# 1./float(15*math.log(n)+1.)
+
       
       self.Tetris.gameover = False
       self.Tetris.paused = False
@@ -315,8 +318,9 @@ class QLearningAgent(TetrisApp):
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
         # print "rot, col ",  rot, col
-        while piece == self.Tetris.stone:
- 
+        i= 1
+        while i ==1:
+  
           self.Tetris.screen.fill((0,0,0))
           if self.Tetris.gameover:
             self.Tetris.center_msg("""Game Over!\nYour score: %d
@@ -351,11 +355,12 @@ class QLearningAgent(TetrisApp):
           #self.Tetris.ideal_place()
           """prevboard = deepcopy(self.Tetris.board)
                                                   legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
-                                                  rot, col =self.getAction(self.Tetris.stone)
+                                                  rot, col =self.getActihon(self.Tetris.stone)
                                         """
 
 
           self.Tetris.place_brick(rot,col)
+          i= 0
           #print self.Tetris.board
           for event in pygame.event.get():
             if event.type == pygame.USEREVENT+1:
@@ -372,6 +377,26 @@ class QLearningAgent(TetrisApp):
           dont_burn_my_cpu.tick(maxfps)
 
 if __name__ == '__main__':
-  Q=  QLearningAgent()
-  for i in range(5000):
+  Q = QLearningAgent()
+  iters = []
+  linescleared = []
+  piecesdropped = []
+  for i in range(6):
     Q.run(i+1)
+    if (i % 2 == 0):
+      # print i,"th iteration: ", Q.Tetris.lines, "lines cleared"
+      iters.append(i)
+      linescleared.append(Q.Tetris.lines)
+      piecesdropped.append(Q.Tetris.numpieces)
+  plt.figure(1)
+  plt.plot(iters, linescleared)
+  plt.ylabel("Lines Cleared")
+  plt.xlabel("Number of Iterations of Q Learning")
+  plt.title("Performance Throughout Learning")
+
+  plt.figure(2)
+  plt.plot(iters, piecesdropped)
+  plt.ylabel("Pieces Dropped")
+  plt.xlabel("Number of Iterations of Q Learning")
+  plt.title("Performance Throughout Learning")
+  plt.show()

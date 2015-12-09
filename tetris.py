@@ -125,7 +125,7 @@ def join_matrixes(mat1, mat2, mat2_off):
 		for cx, val in enumerate(row):
 			#print mat1[cy+off_y-1]
 			#print mat1[cy+off_y-1][cx+off_x-1]
-			mat1[cy+off_y-1	][cx+off_x] += val
+			mat1[cy+off_y-1][cx+off_x] += val
 	return mat1
 
 def new_board():
@@ -142,6 +142,7 @@ class TetrisApp(object):
 		self.height = cell_size*rows
 		self.rlim = cell_size*cols
 		self.boardprev = 0
+		self.numpieces= 0
 		self.bground_grid = [[ 8 if x%2==y%2 else 0 for x in xrange(cols)] for y in xrange(rows)]
 		
 		self.default_font =  pygame.font.Font(
@@ -163,6 +164,7 @@ class TetrisApp(object):
 		# Where we will have to insert the remainder of our adverserial function, right now it just chooses
 		# the different kinds randomly and we would replace that with an intelligent adversary that attempts
 		# to make it as difficult as possible for the max player
+		self.numpieces += 1
 		self.stone = self.next_stone[:]
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.stone_x = int(cols / 2 - len(self.stone[0])/2)
@@ -334,6 +336,7 @@ class TetrisApp(object):
 		differencearray= []
 
 		for action in actions:
+			y=0
 			rot, x = action
 			if rot> 3:
 				print "austin is a dumbass"
@@ -343,19 +346,24 @@ class TetrisApp(object):
 				rotpiece = 	rotate_clockwise(rotpiece)	
 
 			# print "rotpiece after rot: \n", rotpiece
-			while not(check_collision(board, rotpiece, (x, y))):
-				y+=1
 			hyp_board = copy.deepcopy(self.Tetris.board)
+			while not(check_collision(hyp_board, rotpiece, (x, y))):
+				y+=1
+
 
 			# print "hyp_board:\n", hyp_board
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 			# print "new_board:\n", new_board
-			for i in range(len(new_board)):
-				# print "truth is: ", 0 not in new_board[i], " board: ", i
-				if 0 not in new_board[i] and 9 not in new_board[i] :
-					print "This action should clear a line" , new_board[i]
+
+			for i in range(len(new_board)-1):
+				#print "truth is: ", 0 not in new_board[i], " board: ", i
+				if 0 not in new_board[i] and max(new_board[i])<8:
+
+					print "This action should clear a line" , new_board, new_board[i], self.Tetris.stone, i 
+
 					return action
+
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
 
 			# differencearray.append(self.maxrow(join_matrixes(hyp_board, stone, (x,y))) - self.maxrow(origboard))
@@ -367,88 +375,19 @@ class TetrisApp(object):
 
 
 
-		# bestxforrot = []
-		# bestvalforrot = []
-		# rotations = []
-		# board = copy.deepcopy(origboard)
-		
-		# rotations.append(self.Tetris.stone)
-		# #print self.stone
-		# for i in range(1,4):
-		# 	rotations.append(rotate_clockwise(rotations[i - 1]))
-		# for stone in rotations:
-		# 	actions = self.get_legal_actions(stone)
-		# 	#print "actions: ", actions
-		# 	heuristicvals = []
-
-		# 	for x in range(cols-len(stone[0])+1):
-		# 		differencearray= []
-		# 		# print "stone length is" , len(stone)
-		# 		for y in range(len(stone),rows+1):
-
-		# 			if check_collision(board, stone, (x, y)):
-		# 				# print "collision"
-		# 				hyp_board = copy.deepcopy(self.Tetris.board)
-		# 			#print type(hyp_board)
-		# 				try:
-		# 				#print "here"
-		# 				#print join_matrixes(hyp_board, stone, (x,y))
-		# 				#print "matrix ", join_matrixes(hyp_board, stone, (x,y))
-		# 					difference = self.maxrow(join_matrixes(hyp_board, stone, (x,y)))- self.maxrow(origboard)
-						
-		# 					differencearray.append(difference)
-		# 				except: 
-		# 					print "Oops thats an error"
-						
-		# 			# print "copied board: ", board, "\n"
-		# 			# print "board: ", board, "\n"
-		# 			# print join_matrixes(hyp_board, self.stone, (x,y))
-		# 		#print max(heuristicvals)
-						
-						
-		# 					#print join_matrixes(hyp_board, stone, (x,y))
-		# 				try:
-		# 					difference= self.maxrow(join_matrixes(hyp_board,stone, (x,y)))- self.maxrow(origboard)
-		# 					differencearray.append(difference)
-		# 				except:
-		# 					print "shiiiit"
-		# 				"""						try:
-		# 					new = np.array(join_matrixes(hyp_board, stone, (x,y)))
-		# 					toprowval,toprow = self.toprow(hyp_board)
-		# 					print new[toprow], toprowval
-		# 					difference= len(new[toprow][new[toprow]>0]) - toprowval
-		# 					print "difference ", difference
-		# 					differencearray.append(difference)
-		# 				except: 
-		# 					differencearray.append(0)
-		# 					print "Oops thats an error"""
-		# 		#print "array " , len(differencearray)			
-		# 		heuristicvals.append(max(differencearray))
-		# 	bestvalforrot.append(max(heuristicvals))
-		# #	print "length is ", len(heuristicvals)
-		# 	bestxforrot.append(heuristicvals.index(max(heuristicvals)))
-		# #print "rotation "
-		# #print "options, ", bestvalforrot, " rotations ", rotations
-		# bestrot = bestvalforrot.index(max(bestvalforrot))
-		# #print "we return ", rotations[bestrot], bestxforrot[bestrot]
-		# print bestrot
-		# action = bestrot, bestxforrot[bestrot]
-		# print "action is", action
-		# #print bestrot
-		# action = bestrot, bestxforrot[bestrot]
-		# #print "action is", action
- 		# return action
+	
 
 	def get_legal_actions(self, stone):
 		rotations = []
 		actions = []
 		rotations.append(stone)
-		for i in range(1,3):
+		for i in range(1,4):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 			#print rotate_clockwise(rotations[i-1])
 		for rot in rotations:
-			for x in range(cols - len(stone[0]) + 1):
+			for x in range(cols - len(rot[0])+1):
 				actions.append((rotations.index(rot), x))
+		print len(actions)
 		return actions
 
 
@@ -618,17 +557,18 @@ class TetrisApp(object):
 	
 	def toprow(self,board,hyp_board):
 		val = 0
-		for i in range(len(board)-1):
-			row1, row2 =np.array(board[i]), np.array(board[i+1])
-			row3, row4 = np.array(hyp_board[i]), np.array(hyp_board[i+1])
-			np.array(hyp_board[i])
+		for i in range(len(board)-2):
+			row1, row2,row3, =np.array(board[i]), np.array(board[i+1]), np.array(board[i+2])
+			row4, row5, row6 = np.array(hyp_board[i]), np.array(hyp_board[i+1]), np.array(hyp_board[i+2])
 
-			val1,val2 = len(row1[row1>0]),len(row2[row2>0])
-			val3,val4 = len(row3[row3>0]),len(row4[row4>0])
+			val1,val2,val3 = len(row1[row1>0]),len(row2[row2>0]),len(row3[row3>0])
+			val4,val5,val6 = len(row4[row4>0]),len(row5[row5>0]),len(row6[row6>0])
 			#print  row1, row2, row3, row4, val1, val2, val3, val4
 			if val1>0 :
+
 				#print "val  ", (val3+val4)-(val2 + val1)
-				return (val3+val4)-(val1 + val2)
+				return (val4+val5+val6)-(val1 + val2+val3)
+
 		return 0.
 
 	def maxrow(self,board):
