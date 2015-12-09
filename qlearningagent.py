@@ -291,7 +291,7 @@ class QLearningAgent(TetrisApp):
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
 
-      #self.epsilon = 1/10# 1./float(15*math.log(n)+1.)
+      self.epsilon = 1/math.log(float(n)+1)# 1./float(15*math.log(n)+1.)
 
       
       self.Tetris.gameover = False
@@ -381,7 +381,7 @@ if __name__ == '__main__':
   iters = []
   linescleared = []
   piecesdropped = []
-  for i in range(6):
+  for i in range(1000000):
     Q.run(i+1)
     if (i % 2 == 0):
       # print i,"th iteration: ", Q.Tetris.lines, "lines cleared"

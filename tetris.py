@@ -279,7 +279,7 @@ class TetrisApp(object):
 	def insta_drop(self):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
-				time.sleep(0.02)
+				pass
 	
 	def rotate_stone(self):
 		if not self.gameover and not self.paused:
@@ -355,18 +355,12 @@ class TetrisApp(object):
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 			# print "new_board:\n", new_board
-<<<<<<< HEAD
 			for i in range(len(new_board)-1):
 				#print "truth is: ", 0 not in new_board[i], " board: ", i
 				if 0 not in new_board[i] and max(new_board[i])<8:
 
 					print "This action should clear a line" , new_board, new_board[i], self.Tetris.stone, i 
-=======
-			for i in range(len(new_board)):
-				# print "truth is: ", 0 not in new_board[i], " board: ", i
-				if 0 not in new_board[i] and 9 not in new_board[i] :
-					print "This action should clear a line" , new_board[i]
->>>>>>> bfea4a197357ef49173a998a1a130bcfdc425eab
+
 					return action
 
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
