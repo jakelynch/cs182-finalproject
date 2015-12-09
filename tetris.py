@@ -277,7 +277,7 @@ class TetrisApp(object):
 	def insta_drop(self):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
-				time.sleep(0.05)
+				time.sleep(0.02)
 	
 	def rotate_stone(self):
 		if not self.gameover and not self.paused:
@@ -352,7 +352,7 @@ class TetrisApp(object):
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 			# print "new_board:\n", new_board
 			for i in range(len(new_board)):
-				print "truth is: ", 0 not in new_board[i], " board: ", i
+				# print "truth is: ", 0 not in new_board[i], " board: ", i
 				if 0 not in new_board[i] and 9 not in new_board[i] :
 					print "This action should clear a line" , new_board[i]
 					return action
@@ -522,15 +522,20 @@ class TetrisApp(object):
 		# 1) If it will remove a row
 		# 2) Will there be empty spaces under the placed block
 		#print "pass"
-		diffsq=[]
-		for i in range(1,cols-1):
-			diffsq.append(self.difference_squared(possboard,i))
-		diffsqsum = sum(diffsq)
-		#print "diffsqsum =" +str(diffsqsum)
-		avgheight =self.average_height(possboard)
-		#print "avgheight =" +str(avgheight)
+		score = 0
 
-		score = -(20*diffsqsum+20*avgheight)
+		# diffsq=[]
+		# for i in range(1,cols-1):
+		# 	diffsq.append(self.difference_squared(possboard,i))
+		# diffsqsum = sum(diffsq)
+		# #print "diffsqsum =" +str(diffsqsum)
+		# avgheight =self.average_height(possboard)
+		# #print "avgheight =" +str(avgheight)
+		# score = -(diffsqsum+avgheight)
+
+
+
+
 		#print "score = ", score, " diffsqsum = ", diffsqsum, "avgheight =" , avgheight
 		#print "Score 1: ", score
 		rowcount=[]
@@ -552,6 +557,16 @@ class TetrisApp(object):
 						if possboard[rows - y][j] == 0:
 							score -= 4
 						y += 1
+				# Gives additional bonus for having pieces touching edges
+				if j == 9 or j == 0:
+					if possboard[i][j] != 0:
+						score += 1
+				# gives bonus for having pieces touching other pieces
+				if 1<j<8:
+					if possboard[i][j] != 0 and (possboard[i][j+1] != 0 or possboard[i][j-1] != 0):
+						score += 5
+
+
 			#print "score 2= ", score
 			if np.count_nonzero(board[i])>0:
 				rowcount.append(np.count_nonzero(board[i]))

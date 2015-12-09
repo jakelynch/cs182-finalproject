@@ -289,7 +289,7 @@ class QLearningAgent(TetrisApp):
                        pass"""
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
-      self.epsilon = 1./float(15*math.log(n)+1.)
+      self.epsilon = 1/10# 1./float(15*math.log(n)+1.)
       
       self.Tetris.gameover = False
       self.Tetris.paused = False
