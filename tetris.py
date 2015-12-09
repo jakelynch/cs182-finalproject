@@ -158,6 +158,7 @@ class TetrisApp(object):
 		# Where we will have to insert the remainder of our adverserial function, right now it just chooses
 		# the different kinds randomly and we would replace that with an intelligent adversary that attempts
 		# to make it as difficult as possible for the max player
+		self.numpieces += 1
 		self.stone = self.next_stone[:]
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.stone_x = int(cols / 2 - len(self.stone[0])/2)
@@ -171,6 +172,7 @@ class TetrisApp(object):
 	
 	def init_game(self):
 		self.board = new_board()
+		self.numpieces = 0
 		self.new_stone()
 		self.level = 1
 		self.score = 0
@@ -313,7 +315,7 @@ class TetrisApp(object):
 				# print "stone_x_move_lefts"
 
 		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
-		self.drop(True)
+		self.insta_drop()
  
 
 	def ideal_place(self,origboard):

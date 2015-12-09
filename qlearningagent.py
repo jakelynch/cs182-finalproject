@@ -4,6 +4,7 @@ from tetris import TetrisApp
 from random import randrange as rand
 import pygame, sys, copy
 import  random,util,math
+import matplotlib.pyplot as plt
 ##import qlearningagent
 from copy import deepcopy
 
@@ -373,6 +374,26 @@ class QLearningAgent(TetrisApp):
           dont_burn_my_cpu.tick(maxfps)
 
 if __name__ == '__main__':
-  Q=  QLearningAgent()
-  for i in range(500):
+  Q = QLearningAgent()
+  iters = []
+  linescleared = []
+  piecesdropped = []
+  for i in range(10):
     Q.run(i+1)
+    if (i % 2 == 0):
+      # print i,"th iteration: ", Q.Tetris.lines, "lines cleared"
+      iters.append(i)
+      linescleared.append(Q.Tetris.lines)
+      piecesdropped.append(Q.Tetris.numpieces)
+  plt.figure(1)
+  plt.plot(iters, linescleared)
+  plt.ylabel("Lines Cleared")
+  plt.xlabel("Number of Iterations of Q Learning")
+  plt.title("Performance Throughout Learning")
+
+  plt.figure(2)
+  plt.plot(iters, piecesdropped)
+  plt.ylabel("Pieces Dropped")
+  plt.xlabel("Number of Iterations of Q Learning")
+  plt.title("Performance Throughout Learning")
+  plt.show()
