@@ -548,6 +548,7 @@ class TetrisApp(object):
 				if j == 9 or j == 0:
 					if board[i][j] != 0:
 						score += 1
+		return score
 
 	def heur_touching_pieces(self, board):
 		score = 0
@@ -559,6 +560,7 @@ class TetrisApp(object):
 		return score
 
 	def heur_row_count(self, board):
+		avg = 0
 		rowcount = []
 		for i in range(rows):
 			if np.count_nonzero(board[i])>0:
@@ -571,10 +573,12 @@ class TetrisApp(object):
 		board = np.array(possboard)
 		score = 0
 
-		self.heur_diffsum(board)
-		self.heur_row_removal(board)
-		self.heur_empty_spaces(board)
-		self.heur_bordering_pieces(board)
+		# score += weight * self.heur_diffsum(board)
+		score += 75 * self.heur_row_removal(board)
+		score -= 1 * self.heur_empty_spaces(board)
+		score += 3 * self.heur_bordering_pieces(board)
+		score += 2 * self.heur_touching_pieces(board)
+		score += 3 * self.heur_row_count(board)
 
 		return score
 
