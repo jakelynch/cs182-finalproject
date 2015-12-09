@@ -38,12 +38,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+import time
 import numpy as np
 from random import randrange as rand
 import pygame, sys, copy
 import  random,util,math
 ##import qlearningagent
 from copy import deepcopy
+import cPickle as pickle
 # The configuration
 cell_size =	18
 cols =		10 
@@ -99,15 +101,16 @@ for stone in tetris_shapes:
 		stone = rotate_clockwise(stone)
 		rots+=1
 		rotdict[str(stone)]= rots
-#print rotdict
 def check_collision(board, shape, offset):
 	off_x, off_y = offset
 	for cy, row in enumerate(shape):
+
 		for cx, cell in enumerate(row):
 			try:
 				if cell and board[ cy + off_y ][ cx + off_x ]:
 					return True
 			except IndexError:
+				print "IndexError"
 				return True
 	return False
 
@@ -116,17 +119,17 @@ def remove_row(board, row):
 	return [[0 for i in xrange(cols)]] + board
 	
 def join_matrixes(mat1, mat2, mat2_off):
-	#print "mat1 = " + str(mat1), "mat2 = " + str(mat2), "mat2_off = " + str(mat2_off)
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
-			mat1[cy+off_y-1	][cx+off_x] += val
+			
+			mat1[cy+off_y-1][cx+off_x] += val
 	return mat1
 
 def new_board():
 	board = [ [ 0 for x in xrange(cols) ]
 			for y in xrange(rows) ]
-	board += [[ 1 for x in xrange(cols)] for i in xrange(1)]
+	board += [[ 9 for x in xrange(cols)] for i in xrange(1)]
 	return board
 
 class TetrisApp(object):
@@ -137,6 +140,7 @@ class TetrisApp(object):
 		self.height = cell_size*rows
 		self.rlim = cell_size*cols
 		self.boardprev = 0
+		self.numpieces= 0
 		self.bground_grid = [[ 8 if x%2==y%2 else 0 for x in xrange(cols)] for y in xrange(rows)]
 		
 		self.default_font =  pygame.font.Font(
@@ -208,7 +212,7 @@ class TetrisApp(object):
 		off_x, off_y  = offset
 		for y, row in enumerate(matrix):
 			for x, val in enumerate(row):
-				if val:
+				if val!=9:
 					pygame.draw.rect(
 						self.screen,
 						colors[val],
@@ -275,6 +279,7 @@ class TetrisApp(object):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
 				pass
+
 	
 	def rotate_stone(self):
 		if not self.gameover and not self.paused:
@@ -295,24 +300,18 @@ class TetrisApp(object):
 	def place_brick(self, num_rotations, best_x):
 		cur_x = self.stone_x
 		cur_y = self.stone_y
-		#print "stone_x " , self.stone_x ," bestx ", best_x
 		dif_x = self.stone_x - best_x
 
-		# Rotates brick to proper position
 		for x in range(num_rotations):
 			self.rotate_stone()
 
-		# Places brick in best x position
 		if dif_x < 0:
-			# move piece dif_x moves left
 			for x in range(-(dif_x)):
 				self.move(+1)
-				# print "stone_x_move_right"
 		else:
-			# move piece dif_x moves right
 			for x in range(dif_x):
 				self.move(-1)
-				# print "stone_x_move_lefts"
+				
 
 		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
 		self.insta_drop()
@@ -331,103 +330,43 @@ class TetrisApp(object):
 		differencearray= []
 
 		for action in actions:
+			y=0
 			rot, x = action
-			rotpiece = self.Tetris.stone
+
+			rotpiece = deepcopy(self.Tetris.stone)
 			for i in range(rot):	
 				rotpiece = 	rotate_clockwise(rotpiece)	
-			while not(check_collision(board, rotpiece, (x, y))):
-				y+=1
+
 			hyp_board = copy.deepcopy(self.Tetris.board)
-			differencearray.append(self.maxrow(join_matrixes(hyp_board, stone, (x,y))) - self.maxrow(origboard))
+			while not(check_collision(hyp_board, rotpiece, (x, y))):
+				y+=1
+
+
+
+			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
+
+			for i in range(len(new_board)-1):
+				if 0 not in new_board[i] and max(new_board[i])<8:
+					return action
+
+			differencearray.append(self.toprow(self.Tetris.board,new_board))
+
+
 
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestaction
-		
-
-
-
-		# bestxforrot = []
-		# bestvalforrot = []
-		# rotations = []
-		# board = copy.deepcopy(origboard)
-		
-		# rotations.append(self.Tetris.stone)
-		# #print self.stone
-		# for i in range(1,4):
-		# 	rotations.append(rotate_clockwise(rotations[i - 1]))
-		# for stone in rotations:
-		# 	actions = self.get_legal_actions(stone)
-		# 	#print "actions: ", actions
-		# 	heuristicvals = []
-
-		# 	for x in range(cols-len(stone[0])+1):
-		# 		differencearray= []
-		# 		# print "stone length is" , len(stone)
-		# 		for y in range(len(stone),rows+1):
-
-		# 			if check_collision(board, stone, (x, y)):
-		# 				# print "collision"
-		# 				hyp_board = copy.deepcopy(self.Tetris.board)
-		# 			#print type(hyp_board)
-		# 				try:
-		# 				#print "here"
-		# 				#print join_matrixes(hyp_board, stone, (x,y))
-		# 				#print "matrix ", join_matrixes(hyp_board, stone, (x,y))
-		# 					difference = self.maxrow(join_matrixes(hyp_board, stone, (x,y)))- self.maxrow(origboard)
-						
-		# 					differencearray.append(difference)
-		# 				except: 
-		# 					print "Oops thats an error"
-						
-		# 			# print "copied board: ", board, "\n"
-		# 			# print "board: ", board, "\n"
-		# 			# print join_matrixes(hyp_board, self.stone, (x,y))
-		# 		#print max(heuristicvals)
-						
-						
-		# 					#print join_matrixes(hyp_board, stone, (x,y))
-		# 				try:
-		# 					difference= self.maxrow(join_matrixes(hyp_board,stone, (x,y)))- self.maxrow(origboard)
-		# 					differencearray.append(difference)
-		# 				except:
-		# 					print "shiiiit"
-		# 				"""						try:
-		# 					new = np.array(join_matrixes(hyp_board, stone, (x,y)))
-		# 					toprowval,toprow = self.toprow(hyp_board)
-		# 					print new[toprow], toprowval
-		# 					difference= len(new[toprow][new[toprow]>0]) - toprowval
-		# 					print "difference ", difference
-		# 					differencearray.append(difference)
-		# 				except: 
-		# 					differencearray.append(0)
-		# 					print "Oops thats an error"""
-		# 		#print "array " , len(differencearray)			
-		# 		heuristicvals.append(max(differencearray))
-		# 	bestvalforrot.append(max(heuristicvals))
-		# #	print "length is ", len(heuristicvals)
-		# 	bestxforrot.append(heuristicvals.index(max(heuristicvals)))
-		# #print "rotation "
-		# #print "options, ", bestvalforrot, " rotations ", rotations
-		# bestrot = bestvalforrot.index(max(bestvalforrot))
-		# #print "we return ", rotations[bestrot], bestxforrot[bestrot]
-		# print bestrot
-		# action = bestrot, bestxforrot[bestrot]
-		# print "action is", action
-		# #print bestrot
-		# action = bestrot, bestxforrot[bestrot]
-		# #print "action is", action
-		# return action
 
 	def get_legal_actions(self, stone):
 		rotations = []
 		actions = []
 		rotations.append(stone)
-		for i in range(1,3):
+		for i in range(1,4):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 			#print rotate_clockwise(rotations[i-1])
 		for rot in rotations:
-			for x in range(cols - len(stone[0]) + 1):
+			for x in range(cols - len(rot[0])+1):
 				actions.append((rotations.index(rot), x))
+
 		return actions
 
 
@@ -493,57 +432,72 @@ class TetrisApp(object):
 		sq_difference+= (Sum3-Sum1)**2 + (Sum2-Sum1)**2
 		return sq_difference
 
-
-	def heuristic(self, possboard):
-		# print "possboard: ", "\n", possboard, "\n"
-		board = np.array(possboard)
-		# iterates through entire board determing score based on 
-		# 1) If it will remove a row
-		# 2) Will there be empty spaces under the placed block
-		#print "pass"
+	def heur_diffsum(self, board):
 		diffsq=[]
 		for i in range(1,cols-1):
-			diffsq.append(self.difference_squared(possboard,i))
+			diffsq.append(self.difference_squared(board,i))
 		diffsqsum = sum(diffsq)
-		#print "diffsqsum =" +str(diffsqsum)
-		avgheight =self.average_height(possboard)
-		#print "avgheight =" +str(avgheight)
+		avgheight =self.average_height(board)
+		return -(diffsqsum+avgheight)
 
-		score = -(20*diffsqsum+20*avgheight-5)
-		#print "score = ", score, " diffsqsum = ", diffsqsum, "avgheight =" , avgheight
-		#print "Score 1: ", score
-		rowcount=[]
+	def heur_row_removal(self, board):
+		score = 0
 		for i in range(rows):
-			for x in possboard[i]:
-				if x == 0:
-					score -= .01
-			# Adds for each row that will be removed
-			if 0 not in possboard[i]:
-				score += 50.0
+			if 0 not in board[i]:
+				score += 1
+		return score
 
-			# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
-			# found because empty spaces under blocks are undesirable
+	def heur_empty_spaces(self, board):
+		score = 0
+		for i in range(rows):
 			for j in range(cols):
-				if possboard[i][j] != 0:
+				if board[i][j] != 0:
 					y = 0
 					while y < (rows - i):
-
-						if possboard[rows - y][j] == 0:
-							score -= 4
+						if board[rows - y][j] == 0:
+							score += 1
 						y += 1
-			#print "score 2= ", score
+		return score
+
+	def heur_bordering_pieces(self, board):
+		score = 0
+		for i in range(rows):
+			for j in range(cols):
+				if j == 9 or j == 0:
+					if board[i][j] != 0:
+						score += 1
+		return score
+
+	def heur_touching_pieces(self, board):
+		score = 0
+		for i in range(rows):
+			for j in range(cols):
+				if 1<j<8:
+					if board[i][j] != 0 and (board[i][j+1] != 0 or board[i][j-1] != 0):
+						score += 1
+		return score
+
+	def heur_row_count(self, board):
+		avg = 0
+		rowcount = []
+		for i in range(rows):
 			if np.count_nonzero(board[i])>0:
 				rowcount.append(np.count_nonzero(board[i]))
 		if rowcount != []:
-			rowcountscore = (2*np.average(rowcount))**5
-		else:
-			rowcountscore= 0.
-		# print "rowcountscore = "+ str(rowcountscore)
-		score+=rowcountscore
-		#print "Score 2: ", score
-		#score += 1000.
-		# if score > 0: 
-			# print "Score:", score		
+			avg = np.average(rowcount)
+		return avg 
+
+	def heuristic(self, possboard):
+		board = np.array(possboard)
+		score = 0
+
+		score += 0.15 * self.heur_diffsum(board)
+		score += 75 * self.heur_row_removal(board)
+		score -= 1 * self.heur_empty_spaces(board)
+		score += 3 * self.heur_bordering_pieces(board)
+		score += 2 * self.heur_touching_pieces(board)
+		score += 3 * self.heur_row_count(board)
+		print "Score: ", score
 		return score
 
 
@@ -580,14 +534,21 @@ class TetrisApp(object):
 		return finalarray
 		
 	
-	def toprow(self,board):
+	def toprow(self,board,hyp_board):
 		val = 0
-		for i in range(len(board)-1):
-			row =np.array(board[i])
-			val = len(row[row>0])
-			if val>0 :
-				return val, i
-		return val, i
+		for i in range(len(board)-2):
+			row1, row2,row3, =np.array(board[i]), np.array(board[i+1]), np.array(board[i+2])
+			row4, row5, row6 = np.array(hyp_board[i]), np.array(hyp_board[i+1]), np.array(hyp_board[i+2])
+
+			val1,val2,val3 = len(row1[row1>0]),len(row2[row2>0]),len(row3[row3>0])
+			val4,val5,val6 = len(row4[row4>0]),len(row5[row5>0]),len(row6[row6>0])
+			#print  row1, row2, row3, row4, val1, val2, val3, val4
+			if val1>0 :
+
+				#print "val  ", (val3+val4)-(val2 + val1)
+				return (val4+val5+val6)-(val1 + val2+val3)
+
+		return 0.
 
 	def maxrow(self,board):
 		maxval = 0
