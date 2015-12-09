@@ -176,8 +176,8 @@ class QLearningAgent(TetrisApp):
           #print state, action
           self.qval[hash(str((state,action)))]=0.0
           # print "we're getting this"
-        if self.qval[hash(str((state,action)))]!=0:
-          print "Qval=",self.qval[hash(str((state,action)))] 
+        # if self.qval[hash(str((state,action)))]!=0:
+          # print "Qval=",self.qval[hash(str((state,action)))] 
         elif self.qval[hash(str((state,action)))]>0:
           print "we're getting somthing else",  self.qval[hash(str((state,action)))]
         return self.qval[hash(str((state,action)))]

@@ -511,13 +511,13 @@ class TetrisApp(object):
 		board = np.array(possboard)
 		score = 0
 
-		# score += weight * self.heur_diffsum(board)
+		# print "diffsum: ", self.heur_diffsum(board)
 		score += 75 * self.heur_row_removal(board)
 		score -= 1 * self.heur_empty_spaces(board)
 		score += 3 * self.heur_bordering_pieces(board)
 		score += 2 * self.heur_touching_pieces(board)
 		score += 3 * self.heur_row_count(board)
-
+		print "Score: ", score
 		return score
 
 
