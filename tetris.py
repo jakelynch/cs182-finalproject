@@ -80,7 +80,7 @@ tetris_shapes = [
 	[[0, 0, 5],
 	 [5, 5, 5]],
 	
-	# [[6, 6, 6, 6]],
+	[[6, 6, 6, 6]],
 	
 	[[7, 7],
 	 [7, 7]]
@@ -280,6 +280,7 @@ class TetrisApp(object):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
 				pass
+
 	
 	def rotate_stone(self):
 		if not self.gameover and not self.paused:
@@ -338,8 +339,7 @@ class TetrisApp(object):
 		for action in actions:
 			y=0
 			rot, x = action
-			if rot> 3:
-				print "austin is a dumbass"
+	
 			rotpiece = deepcopy(self.Tetris.stone)
 			# print "rotpiece before rot: \n", rotpiece
 			for i in range(rot):	
@@ -355,12 +355,12 @@ class TetrisApp(object):
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 			# print "new_board:\n", new_board
+
 			for i in range(len(new_board)-1):
 				#print "truth is: ", 0 not in new_board[i], " board: ", i
 				if 0 not in new_board[i] and max(new_board[i])<8:
 
-					print "This action should clear a line" , new_board, new_board[i], self.Tetris.stone, i 
-
+					#print "This action should clear a line" , new_board, new_board[i], self.Tetris.stone, i 
 					return action
 
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
@@ -386,7 +386,7 @@ class TetrisApp(object):
 		for rot in rotations:
 			for x in range(cols - len(rot[0])+1):
 				actions.append((rotations.index(rot), x))
-		print len(actions)
+		#print len(actions)
 		return actions
 
 
@@ -486,6 +486,7 @@ class TetrisApp(object):
 				if j == 9 or j == 0:
 					if board[i][j] != 0:
 						score += 1
+		return score
 
 	def heur_touching_pieces(self, board):
 		score = 0
@@ -497,6 +498,7 @@ class TetrisApp(object):
 		return score
 
 	def heur_row_count(self, board):
+		avg = 0
 		rowcount = []
 		for i in range(rows):
 			if np.count_nonzero(board[i])>0:
@@ -509,11 +511,13 @@ class TetrisApp(object):
 		board = np.array(possboard)
 		score = 0
 
-		self.heur_diffsum(board)
-		self.heur_row_removal(board)
-		self.heur_empty_spaces(board)
-		self.heur_bordering_pieces(board)
-
+		score -= 10 * self.heur_diffsum(board)
+		score += 75 * self.heur_row_removal(board)
+		score -= 1 * self.heur_empty_spaces(board)
+		score += 1 * self.heur_bordering_pieces(board)
+		score += 1 * self.heur_touching_pieces(board)
+		score += 1 * self.heur_row_count(board)
+		print "Score ", score
 		return score
 
 
