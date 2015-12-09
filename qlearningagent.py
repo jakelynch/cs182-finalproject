@@ -26,8 +26,8 @@ colors = [
 
 # Define the shapes of the single parts
 tetris_shapes = [
-  [[1, 1, 1],
-   [0, 1, 0]],
+  [[0, 1, 0],
+   [1, 1, 1]],
   
   [[0, 2, 2],
    [2, 2, 0]],
@@ -295,6 +295,7 @@ class QLearningAgent(TetrisApp):
       self.Tetris.gameover = False
       self.Tetris.paused = False
       #print self.Tetris.board
+
       
       dont_burn_my_cpu = pygame.time.Clock()
       rot, col = self.getAction((self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone))
@@ -314,7 +315,7 @@ class QLearningAgent(TetrisApp):
         prevboard = self.Tetris.get_board_state(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
-        #print rot, col
+        print "rot, col ",  rot, col
         while piece == self.Tetris.stone:
  
           self.Tetris.screen.fill((0,0,0))
@@ -353,7 +354,9 @@ class QLearningAgent(TetrisApp):
                                                   legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
                                                   rot, col =self.getAction(self.Tetris.stone)
                                         """
-          self.Tetris.place_brick(rotdict[str(rot)],col)
+
+          self.Tetris.place_brick(rot,col)
+          #print self.Tetris.board
           for event in pygame.event.get():
             if event.type == pygame.USEREVENT+1:
               pass
@@ -370,5 +373,5 @@ class QLearningAgent(TetrisApp):
 
 if __name__ == '__main__':
   Q=  QLearningAgent()
-  for i in range(10000):
+  for i in range(2):
     Q.run(i+1)
