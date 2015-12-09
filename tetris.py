@@ -38,6 +38,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+import time
 import numpy as np
 from random import randrange as rand
 import pygame, sys, copy
@@ -79,7 +80,7 @@ tetris_shapes = [
 	[[0, 0, 5],
 	 [5, 5, 5]],
 	
-	[[6, 6, 6, 6]],
+	# [[6, 6, 6, 6]],
 	
 	[[7, 7],
 	 [7, 7]]
@@ -109,6 +110,7 @@ def check_collision(board, shape, offset):
 				if cell and board[ cy + off_y ][ cx + off_x ]:
 					return True
 			except IndexError:
+				print "IndexError"
 				return True
 	return False
 
@@ -129,7 +131,7 @@ def join_matrixes(mat1, mat2, mat2_off):
 def new_board():
 	board = [ [ 0 for x in xrange(cols) ]
 			for y in xrange(rows) ]
-	board += [[ 1 for x in xrange(cols)] for i in xrange(1)]
+	board += [[ 9 for x in xrange(cols)] for i in xrange(1)]
 	return board
 
 class TetrisApp(object):
@@ -209,7 +211,7 @@ class TetrisApp(object):
 		off_x, off_y  = offset
 		for y, row in enumerate(matrix):
 			for x, val in enumerate(row):
-				if val:
+				if val!=9:
 					pygame.draw.rect(
 						self.screen,
 						colors[val],
@@ -275,7 +277,7 @@ class TetrisApp(object):
 	def insta_drop(self):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
-				pass
+				time.sleep(0.05)
 	
 	def rotate_stone(self):
 		if not self.gameover and not self.paused:
@@ -333,7 +335,9 @@ class TetrisApp(object):
 
 		for action in actions:
 			rot, x = action
-			rotpiece = self.Tetris.stone
+			if rot> 3:
+				print "austin is a dumbass"
+			rotpiece = deepcopy(self.Tetris.stone)
 			# print "rotpiece before rot: \n", rotpiece
 			for i in range(rot):	
 				rotpiece = 	rotate_clockwise(rotpiece)	
@@ -345,13 +349,14 @@ class TetrisApp(object):
 
 			# print "hyp_board:\n", hyp_board
 
-			new_board = join_matrixes(hyp_board, stone, (x,y))
+			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 			# print "new_board:\n", new_board
-			for i in range(len(new_board) ):
-				if 0 not in new_board[i] and not len(set(new_board[i])) <= 1:
-					#print "This action should clear a line"
+			for i in range(len(new_board)):
+				print "truth is: ", 0 not in new_board[i], " board: ", i
+				if 0 not in new_board[i] and 9 not in new_board[i] :
+					print "This action should clear a line" , new_board[i]
 					return action
-			differencearray.append(self.toprow(join_matrixes(hyp_board, stone, (x,y)),self.Tetris.board))
+			differencearray.append(self.toprow(self.Tetris.board,new_board))
 
 			# differencearray.append(self.maxrow(join_matrixes(hyp_board, stone, (x,y))) - self.maxrow(origboard))
 
@@ -605,8 +610,9 @@ class TetrisApp(object):
 
 			val1,val2 = len(row1[row1>0]),len(row2[row2>0])
 			val3,val4 = len(row3[row3>0]),len(row4[row4>0])
+			#print  row1, row2, row3, row4, val1, val2, val3, val4
 			if val1>0 :
-				print "val  ", (val3+val4)-(val2 + val1)
+				#print "val  ", (val3+val4)-(val2 + val1)
 				return (val3+val4)-(val1 + val2)
 		return 0.
 
