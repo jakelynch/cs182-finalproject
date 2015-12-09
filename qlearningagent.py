@@ -1,4 +1,5 @@
 import random,util,math
+import cPickle as pickle
 import tetris
 from tetris import TetrisApp
 from random import randrange as rand
@@ -383,3 +384,12 @@ if __name__ == '__main__':
   plt.xlabel("Number of Iterations of Q Learning")
   plt.title("Performance Throughout Learning")
   plt.show()
+
+  # WE BE PICKLIN
+  file = open('qvalues', 'w')
+  pickle.dump(Q.qval, file)
+
+  file.close()
+
+
+

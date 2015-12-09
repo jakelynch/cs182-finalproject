@@ -45,6 +45,7 @@ import pygame, sys, copy
 import  random,util,math
 ##import qlearningagent
 from copy import deepcopy
+import cPickle as pickle
 # The configuration
 cell_size =	18
 cols =		10 
@@ -329,7 +330,7 @@ class TetrisApp(object):
 		for action in actions:
 			y=0
 			rot, x = action
-	
+
 			rotpiece = deepcopy(self.Tetris.stone)
 			for i in range(rot):	
 				rotpiece = 	rotate_clockwise(rotpiece)	
@@ -352,11 +353,6 @@ class TetrisApp(object):
 
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestaction
-		
-
-
-
-	
 
 	def get_legal_actions(self, stone):
 		rotations = []
@@ -368,7 +364,7 @@ class TetrisApp(object):
 		for rot in rotations:
 			for x in range(cols - len(rot[0])+1):
 				actions.append((rotations.index(rot), x))
-		#print len(actions)
+
 		return actions
 
 
@@ -493,8 +489,7 @@ class TetrisApp(object):
 		board = np.array(possboard)
 		score = 0
 
-
-		# print "diffsum: ", self.heur_diffsum(board)
+		score += 0.15 * self.heur_diffsum(board)
 		score += 75 * self.heur_row_removal(board)
 		score -= 1 * self.heur_empty_spaces(board)
 		score += 3 * self.heur_bordering_pieces(board)
