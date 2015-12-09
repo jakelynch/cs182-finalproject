@@ -80,7 +80,7 @@ tetris_shapes = [
 	[[0, 0, 5],
 	 [5, 5, 5]],
 	
-	# [[6, 6, 6, 6]],
+	[[6, 6, 6, 6]],
 	
 	[[7, 7],
 	 [7, 7]]
@@ -279,7 +279,7 @@ class TetrisApp(object):
 	def insta_drop(self):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
-				time.sleep(0.02)
+				pass #time.sleep(0.02)
 	
 	def rotate_stone(self):
 		if not self.gameover and not self.paused:
