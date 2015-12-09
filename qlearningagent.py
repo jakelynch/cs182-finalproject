@@ -174,9 +174,9 @@ class QLearningAgent(TetrisApp):
         if hash(str((state, action))) not in self.qval:
           #print state, action
           self.qval[hash(str((state,action)))]=0.0
-          #print "we're getting this"
-        #if self.qval[hash(str((state,action)))]!=0:
-          # print "Qval=",self.qval[hash(str((state,action)))] 
+          # print "we're getting this"
+        if self.qval[hash(str((state,action)))]!=0:
+          print "Qval=",self.qval[hash(str((state,action)))] 
         elif self.qval[hash(str((state,action)))]>0:
           print "we're getting somthing else",  self.qval[hash(str((state,action)))]
         return self.qval[hash(str((state,action)))]
@@ -222,7 +222,7 @@ class QLearningAgent(TetrisApp):
               if maxval> 0:
                 print "maxval ",str(maxval)
         if maxval>0:
-          print "Qval=" +str(maxval)
+           print "Qval=" +str(maxval)
         return finalaction
 
     def getAction(self, state):
@@ -301,7 +301,7 @@ class QLearningAgent(TetrisApp):
       rot, col = self.getAction((self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone))
       prevboard = self.Tetris.get_board_state(self.Tetris.board)
       n+=1
-      print n
+      # print n
       #while 1:
       while not(self.Tetris.gameover):
 
@@ -315,7 +315,7 @@ class QLearningAgent(TetrisApp):
         prevboard = self.Tetris.get_board_state(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
-        print "rot, col ",  rot, col
+        # print "rot, col ",  rot, col
         while piece == self.Tetris.stone:
  
           self.Tetris.screen.fill((0,0,0))
@@ -355,6 +355,7 @@ class QLearningAgent(TetrisApp):
                                                   rot, col =self.getAction(self.Tetris.stone)
                                         """
 
+
           self.Tetris.place_brick(rot,col)
           #print self.Tetris.board
           for event in pygame.event.get():
@@ -373,5 +374,5 @@ class QLearningAgent(TetrisApp):
 
 if __name__ == '__main__':
   Q=  QLearningAgent()
-  for i in range(2):
+  for i in range(500):
     Q.run(i+1)

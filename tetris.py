@@ -64,8 +64,8 @@ colors = [
 
 # Define the shapes of the single parts
 tetris_shapes = [
-	[[1, 1, 1],
-	 [0, 1, 0]],
+	[[0, 1, 0],
+	 [1, 1, 1]],
 	
 	[[0, 2, 2],
 	 [2, 2, 0]],
@@ -103,6 +103,7 @@ for stone in tetris_shapes:
 def check_collision(board, shape, offset):
 	off_x, off_y = offset
 	for cy, row in enumerate(shape):
+
 		for cx, cell in enumerate(row):
 			try:
 				if cell and board[ cy + off_y ][ cx + off_x ]:
@@ -120,6 +121,8 @@ def join_matrixes(mat1, mat2, mat2_off):
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
+			print mat1[cy+off_y-1]
+			print mat1[cy+off_y-1][cx+off_x-1]
 			mat1[cy+off_y-1	][cx+off_x] += val
 	return mat1
 
@@ -322,65 +325,101 @@ class TetrisApp(object):
 		make it so that this function is run once when a new stone appears, then place_brick runs until the
 		brick is placed then the game will call a new stone and the process will repeat"""
 
-		
-		bestxforrot = []
-		bestvalforrot = []
-		rotations = []
+		actions = self.get_legal_actions(self.Tetris.stone)
 		board = copy.deepcopy(origboard)
+		heuristicvals = []
+		y = 0
+		differencearray= []
+
+		for action in actions:
+			rot, x = action
+			rotpiece = self.Tetris.stone
+			for i in range(rot):	
+				rotpiece = 	rotate_clockwise(rotpiece)	
+				print rotpiece
+			while not(check_collision(board, rotpiece, (x, y))):
+				y+=1
+			hyp_board = copy.deepcopy(self.Tetris.board)
+			print "val is ", self.toprow(join_matrixes(hyp_board, stone, (x,y)),self.Tetris.board)
+			differencearray.append(self.toprow(join_matrixes(hyp_board, stone, (x,y)),self.Tetris.board))
+		print "max ,", max(differencearray)
+		bestaction = actions[differencearray.index(max(differencearray))]
+		return bestaction
 		
-		rotations.append(self.Tetris.stone)
-		#print self.stone
-		for i in range(1,4):
-			rotations.append(rotate_clockwise(rotations[i - 1]))
-		for stone in rotations:
-			print "stone ", stone
-			actions = self.get_legal_actions(stone)
-			#print "actions: ", actions
-			heuristicvals = []
-			for x in range(cols-len(stone[0])+1):
-				differencearray= []
-				# print "stone length is" , len(stone)
-				for y in range(len(stone),rows+1):
 
-					if check_collision(board, stone, (x, y)):
-						hyp_board = copy.deepcopy(self.Tetris.board)
-						hyp_board_2 = deepcopy(hyp_board)
+
+
+		# bestxforrot = []
+		# bestvalforrot = []
+		# rotations = []
+		# board = copy.deepcopy(origboard)
+		
+		# rotations.append(self.Tetris.stone)
+		# #print self.stone
+		# for i in range(1,4):
+		# 	rotations.append(rotate_clockwise(rotations[i - 1]))
+		# for stone in rotations:
+		# 	actions = self.get_legal_actions(stone)
+		# 	#print "actions: ", actions
+		# 	heuristicvals = []
+
+		# 	for x in range(cols-len(stone[0])+1):
+		# 		differencearray= []
+		# 		# print "stone length is" , len(stone)
+		# 		for y in range(len(stone),rows+1):
+
+		# 			if check_collision(board, stone, (x, y)):
+		# 				# print "collision"
+		# 				hyp_board = copy.deepcopy(self.Tetris.board)
+		# 			#print type(hyp_board)
+		# 				try:
+		# 				#print "here"
+		# 				#print join_matrixes(hyp_board, stone, (x,y))
+		# 				#print "matrix ", join_matrixes(hyp_board, stone, (x,y))
+		# 					difference = self.maxrow(join_matrixes(hyp_board, stone, (x,y)))- self.maxrow(origboard)
 						
-							#print join_matrixes(hyp_board, stone, (x,y))
-						"""try:
-							difference= self.maxrow(join_matrixes(hyp_board,stone, (x,y)))- self.maxrow(origboard)
-							differencearray.append(difference)
-						except:
-							print "shiiiit"
-						"""
-
-						try:
-							
-							toprowval,toprow = self.toprow(hyp_board)
-							new = np.array(join_matrixes(hyp_board, stone, (x,y)))
-
-							print new[toprow], toprowval, len(new[toprow][new[toprow]>0])
-							difference= len(new[toprow][new[toprow]>0]) - toprowval
-							if difference>0:
-								print "difference ", difference
-							differencearray.append(difference)
-						except: 
-							differencearray.append(0)
-							print "Oops thats an error"
-				#print "array " , len(differencearray)			
-				heuristicvals.append(max(differencearray))
-			bestvalforrot.append(max(heuristicvals))
-		#	print "length is ", len(heuristicvals)
-			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
-		#print "rotation "
-		#print "options, ", bestvalforrot, " rotations ", rotations
-		print "bestrot ", max(bestvalforrot)
-		bestrot = bestvalforrot.index(max(bestvalforrot))
-		#print "we return ", rotations[bestrot], bestxforrot[bestrot]
-		#print bestrot
-		action = bestrot, bestxforrot[bestrot]
-		#print "action is", action
-		return action
+		# 					differencearray.append(difference)
+		# 				except: 
+		# 					print "Oops thats an error"
+						
+		# 			# print "copied board: ", board, "\n"
+		# 			# print "board: ", board, "\n"
+		# 			# print join_matrixes(hyp_board, self.stone, (x,y))
+		# 		#print max(heuristicvals)
+						
+						
+		# 					#print join_matrixes(hyp_board, stone, (x,y))
+		# 				try:
+		# 					difference= self.maxrow(join_matrixes(hyp_board,stone, (x,y)))- self.maxrow(origboard)
+		# 					differencearray.append(difference)
+		# 				except:
+		# 					print "shiiiit"
+		# 				"""						try:
+		# 					new = np.array(join_matrixes(hyp_board, stone, (x,y)))
+		# 					toprowval,toprow = self.toprow(hyp_board)
+		# 					print new[toprow], toprowval
+		# 					difference= len(new[toprow][new[toprow]>0]) - toprowval
+		# 					print "difference ", difference
+		# 					differencearray.append(difference)
+		# 				except: 
+		# 					differencearray.append(0)
+		# 					print "Oops thats an error"""
+		# 		#print "array " , len(differencearray)			
+		# 		heuristicvals.append(max(differencearray))
+		# 	bestvalforrot.append(max(heuristicvals))
+		# #	print "length is ", len(heuristicvals)
+		# 	bestxforrot.append(heuristicvals.index(max(heuristicvals)))
+		# #print "rotation "
+		# #print "options, ", bestvalforrot, " rotations ", rotations
+		# bestrot = bestvalforrot.index(max(bestvalforrot))
+		# #print "we return ", rotations[bestrot], bestxforrot[bestrot]
+		# print bestrot
+		# action = bestrot, bestxforrot[bestrot]
+		# print "action is", action
+		# #print bestrot
+		# action = bestrot, bestxforrot[bestrot]
+		# #print "action is", action
+ 		# return action
 
 	def get_legal_actions(self, stone):
 		rotations = []
@@ -390,8 +429,8 @@ class TetrisApp(object):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 			#print rotate_clockwise(rotations[i-1])
 		for rot in rotations:
-			for x in range(cols - len(stone[0])):
-				actions.append((rot, x))
+			for x in range(cols - len(stone[0]) + 1):
+				actions.append((rotations.index(rot), x))
 		return actions
 
 
@@ -473,7 +512,7 @@ class TetrisApp(object):
 		avgheight =self.average_height(possboard)
 		#print "avgheight =" +str(avgheight)
 
-		score = -(diffsqsum+avgheight-5)
+		score = -(20*diffsqsum+20*avgheight-5)
 		#print "score = ", score, " diffsqsum = ", diffsqsum, "avgheight =" , avgheight
 		#print "Score 1: ", score
 		rowcount=[]
@@ -493,7 +532,7 @@ class TetrisApp(object):
 					while y < (rows - i):
 
 						if possboard[rows - y][j] == 0:
-							score -= .01
+							score -= 4
 						y += 1
 			#print "score 2= ", score
 			if np.count_nonzero(board[i])>0:
@@ -544,14 +583,19 @@ class TetrisApp(object):
 		return finalarray
 		
 	
-	def toprow(self,board):
+	def toprow(self,board,hyp_board):
 		val = 0
 		for i in range(len(board)-1):
-			row =np.array(board[i])
-			val = len(row[row>0])
-			if val>0 :
-				return val, i
-		return val, i
+			row1, row2 =np.array(board[i]), np.array(board[i+1])
+			row3, row4 = np.array(hyp_board[i]), np.array(hyp_board[i+1])
+			np.array(hyp_board[i])
+
+			val1,val2 = len(row1[row1>0]),len(row2[row2>0])
+			val3,val4 = len(row3[row3>0]),len(row4[row4>0])
+			if val1>0 :
+				print "val  ", (val3+val4)-(val2 + val1)
+				return (val3+val4)-(val1 + val2)
+		return 0.
 
 	def maxrow(self,board):
 		maxval = 0
