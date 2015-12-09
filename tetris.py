@@ -121,8 +121,8 @@ def join_matrixes(mat1, mat2, mat2_off):
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
-			print mat1[cy+off_y-1]
-			print mat1[cy+off_y-1][cx+off_x-1]
+			#print mat1[cy+off_y-1]
+			#print mat1[cy+off_y-1][cx+off_x-1]
 			mat1[cy+off_y-1	][cx+off_x] += val
 	return mat1
 
@@ -334,15 +334,28 @@ class TetrisApp(object):
 		for action in actions:
 			rot, x = action
 			rotpiece = self.Tetris.stone
+			# print "rotpiece before rot: \n", rotpiece
 			for i in range(rot):	
 				rotpiece = 	rotate_clockwise(rotpiece)	
-				print rotpiece
+
+			# print "rotpiece after rot: \n", rotpiece
 			while not(check_collision(board, rotpiece, (x, y))):
 				y+=1
 			hyp_board = copy.deepcopy(self.Tetris.board)
-			print "val is ", self.toprow(join_matrixes(hyp_board, stone, (x,y)),self.Tetris.board)
+
+			# print "hyp_board:\n", hyp_board
+
+			new_board = join_matrixes(hyp_board, stone, (x,y))
+			# print "new_board:\n", new_board
+			for i in range(len(new_board) ):
+				if 0 not in new_board[i] and not len(set(new_board[i])) <= 1:
+					#print "This action should clear a line"
+					return action
 			differencearray.append(self.toprow(join_matrixes(hyp_board, stone, (x,y)),self.Tetris.board))
-		print "max ,", max(differencearray)
+
+			# differencearray.append(self.maxrow(join_matrixes(hyp_board, stone, (x,y))) - self.maxrow(origboard))
+
+
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestaction
 		
@@ -512,7 +525,7 @@ class TetrisApp(object):
 		avgheight =self.average_height(possboard)
 		#print "avgheight =" +str(avgheight)
 
-		score = -(20*diffsqsum+20*avgheight-5)
+		score = -(20*diffsqsum+20*avgheight)
 		#print "score = ", score, " diffsqsum = ", diffsqsum, "avgheight =" , avgheight
 		#print "Score 1: ", score
 		rowcount=[]
@@ -538,7 +551,7 @@ class TetrisApp(object):
 			if np.count_nonzero(board[i])>0:
 				rowcount.append(np.count_nonzero(board[i]))
 		if rowcount != []:
-			rowcountscore = (2*np.average(rowcount))**5
+			rowcountscore = (2*np.average(rowcount))**4
 		else:
 			rowcountscore= 0.
 		# print "rowcountscore = "+ str(rowcountscore)
