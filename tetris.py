@@ -313,7 +313,7 @@ class TetrisApp(object):
 				# print "stone_x_move_lefts"
 
 		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
-		self.insta_drop()
+		self.drop(True)
  
 
 	def ideal_place(self,origboard):
@@ -331,12 +331,25 @@ class TetrisApp(object):
 		for action in actions:
 			rot, x = action
 			rotpiece = self.Tetris.stone
+			# print "rotpiece before rot: \n", rotpiece
 			for i in range(rot):	
 				rotpiece = 	rotate_clockwise(rotpiece)	
+			# print "rotpiece after rot: \n", rotpiece
 			while not(check_collision(board, rotpiece, (x, y))):
 				y+=1
 			hyp_board = copy.deepcopy(self.Tetris.board)
+
+			# print "hyp_board:\n", hyp_board
+
+			new_board = join_matrixes(hyp_board, stone, (x,y))
+			# print "new_board:\n", new_board
+			for i in range(len(new_board) ):
+				if 0 not in new_board[i] and not len(set(new_board[i])) <= 1:
+					print "This action should clear a line"
+					return action
+
 			differencearray.append(self.maxrow(join_matrixes(hyp_board, stone, (x,y))) - self.maxrow(origboard))
+
 
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestaction
