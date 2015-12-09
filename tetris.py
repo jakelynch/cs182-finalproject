@@ -279,7 +279,7 @@ class TetrisApp(object):
 	def insta_drop(self):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
-				time.sleep(0.05)
+				time.sleep(0.02)
 	
 	def rotate_stone(self):
 		if not self.gameover and not self.paused:
@@ -355,11 +355,18 @@ class TetrisApp(object):
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 			# print "new_board:\n", new_board
+<<<<<<< HEAD
 			for i in range(len(new_board)-1):
 				#print "truth is: ", 0 not in new_board[i], " board: ", i
 				if 0 not in new_board[i] and max(new_board[i])<8:
 
 					print "This action should clear a line" , new_board, new_board[i], self.Tetris.stone, i 
+=======
+			for i in range(len(new_board)):
+				# print "truth is: ", 0 not in new_board[i], " board: ", i
+				if 0 not in new_board[i] and 9 not in new_board[i] :
+					print "This action should clear a line" , new_board[i]
+>>>>>>> bfea4a197357ef49173a998a1a130bcfdc425eab
 					return action
 
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
@@ -451,57 +458,68 @@ class TetrisApp(object):
 		sq_difference+= (Sum3-Sum1)**2 + (Sum2-Sum1)**2
 		return sq_difference
 
-
-	def heuristic(self, possboard):
-		# print "possboard: ", "\n", possboard, "\n"
-		board = np.array(possboard)
-		# iterates through entire board determing score based on 
-		# 1) If it will remove a row
-		# 2) Will there be empty spaces under the placed block
-		#print "pass"
+	def heur_diffsum(self, board):
 		diffsq=[]
 		for i in range(1,cols-1):
-			diffsq.append(self.difference_squared(possboard,i))
+			diffsq.append(self.difference_squared(board,i))
 		diffsqsum = sum(diffsq)
-		#print "diffsqsum =" +str(diffsqsum)
-		avgheight =self.average_height(possboard)
-		#print "avgheight =" +str(avgheight)
+		avgheight =self.average_height(board)
+		return -(diffsqsum+avgheight)
 
-		score = -(20*diffsqsum+20*avgheight)
-		#print "score = ", score, " diffsqsum = ", diffsqsum, "avgheight =" , avgheight
-		#print "Score 1: ", score
-		rowcount=[]
+	def heur_row_removal(self, board):
+		score = 0
 		for i in range(rows):
-			for x in possboard[i]:
-				if x == 0:
-					score -= .01
-			# Adds for each row that will be removed
-			if 0 not in possboard[i]:
-				score += 50.0
+			if 0 not in board[i]:
+				score += 1
+		return score
 
-			# if there are empty spaces underneath spaces filled by block then subtracts one for each instance
-			# found because empty spaces under blocks are undesirable
+	def heur_empty_spaces(self, board):
+		score = 0
+		for i in range(rows):
 			for j in range(cols):
-				if possboard[i][j] != 0:
+				if board[i][j] != 0:
 					y = 0
 					while y < (rows - i):
-
-						if possboard[rows - y][j] == 0:
-							score -= 4
+						if board[rows - y][j] == 0:
+							score += 1
 						y += 1
-			#print "score 2= ", score
+		return score
+
+	def heur_bordering_pieces(self, board):
+		score = 0
+		for i in range(rows):
+			for j in range(cols):
+				if j == 9 or j == 0:
+					if board[i][j] != 0:
+						score += 1
+
+	def heur_touching_pieces(self, board):
+		score = 0
+		for i in range(rows):
+			for j in range(cols):
+				if 1<j<8:
+					if board[i][j] != 0 and (board[i][j+1] != 0 or board[i][j-1] != 0):
+						score += 1
+		return score
+
+	def heur_row_count(self, board):
+		rowcount = []
+		for i in range(rows):
 			if np.count_nonzero(board[i])>0:
 				rowcount.append(np.count_nonzero(board[i]))
 		if rowcount != []:
-			rowcountscore = (2*np.average(rowcount))**4
-		else:
-			rowcountscore= 0.
-		# print "rowcountscore = "+ str(rowcountscore)
-		score+=rowcountscore
-		#print "Score 2: ", score
-		#score += 1000.
-		# if score > 0: 
-			# print "Score:", score		
+			avg = np.average(rowcount)
+		return avg 
+
+	def heuristic(self, possboard):
+		board = np.array(possboard)
+		score = 0
+
+		self.heur_diffsum(board)
+		self.heur_row_removal(board)
+		self.heur_empty_spaces(board)
+		self.heur_bordering_pieces(board)
+
 		return score
 
 
