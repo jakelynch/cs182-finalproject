@@ -313,7 +313,7 @@ class TetrisApp(object):
 				# print "stone_x_move_lefts"
 
 		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
-		self.drop(True)
+		self.insta_drop()
  
 
 	def ideal_place(self,origboard):
