@@ -100,7 +100,6 @@ for stone in tetris_shapes:
 		stone = rotate_clockwise(stone)
 		rots+=1
 		rotdict[str(stone)]= rots
-#print rotdict
 def check_collision(board, shape, offset):
 	off_x, off_y = offset
 	for cy, row in enumerate(shape):
@@ -119,12 +118,10 @@ def remove_row(board, row):
 	return [[0 for i in xrange(cols)]] + board
 	
 def join_matrixes(mat1, mat2, mat2_off):
-	#print "mat1 = " + str(mat1), "mat2 = " + str(mat2), "mat2_off = " + str(mat2_off)
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
-			#print mat1[cy+off_y-1]
-			#print mat1[cy+off_y-1][cx+off_x-1]
+			
 			mat1[cy+off_y-1][cx+off_x] += val
 	return mat1
 
@@ -301,26 +298,19 @@ class TetrisApp(object):
 	def place_brick(self, num_rotations, best_x):
 		cur_x = self.stone_x
 		cur_y = self.stone_y
-		#print "stone_x " , self.stone_x ," bestx ", best_x
 		dif_x = self.stone_x - best_x
 
-		# Rotates brick to proper position
 		for x in range(num_rotations):
 			self.rotate_stone()
 
-		# Places brick in best x position
 		if dif_x < 0:
-			# move piece dif_x moves left
 			for x in range(-(dif_x)):
 				self.move(+1)
-				# print "stone_x_move_right"
 		else:
-			# move piece dif_x moves right
 			for x in range(dif_x):
 				self.move(-1)
-				# print "stone_x_move_lefts"
+				
 
-		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
 		self.insta_drop()
  
 
@@ -341,31 +331,23 @@ class TetrisApp(object):
 			rot, x = action
 	
 			rotpiece = deepcopy(self.Tetris.stone)
-			# print "rotpiece before rot: \n", rotpiece
 			for i in range(rot):	
 				rotpiece = 	rotate_clockwise(rotpiece)	
 
-			# print "rotpiece after rot: \n", rotpiece
 			hyp_board = copy.deepcopy(self.Tetris.board)
 			while not(check_collision(hyp_board, rotpiece, (x, y))):
 				y+=1
 
 
-			# print "hyp_board:\n", hyp_board
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
-			# print "new_board:\n", new_board
 
 			for i in range(len(new_board)-1):
-				#print "truth is: ", 0 not in new_board[i], " board: ", i
 				if 0 not in new_board[i] and max(new_board[i])<8:
-
-					#print "This action should clear a line" , new_board, new_board[i], self.Tetris.stone, i 
 					return action
 
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
 
-			# differencearray.append(self.maxrow(join_matrixes(hyp_board, stone, (x,y))) - self.maxrow(origboard))
 
 
 		bestaction = actions[differencearray.index(max(differencearray))]
@@ -511,13 +493,14 @@ class TetrisApp(object):
 		board = np.array(possboard)
 		score = 0
 
-		score -= 10 * self.heur_diffsum(board)
+
+		# print "diffsum: ", self.heur_diffsum(board)
 		score += 75 * self.heur_row_removal(board)
 		score -= 1 * self.heur_empty_spaces(board)
-		score += 1 * self.heur_bordering_pieces(board)
-		score += 1 * self.heur_touching_pieces(board)
-		score += 1 * self.heur_row_count(board)
-		print "Score ", score
+		score += 3 * self.heur_bordering_pieces(board)
+		score += 2 * self.heur_touching_pieces(board)
+		score += 3 * self.heur_row_count(board)
+		print "Score: ", score
 		return score
 
 
