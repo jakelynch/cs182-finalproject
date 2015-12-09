@@ -333,6 +333,7 @@ class TetrisApp(object):
 		for i in range(1,4):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
 		for stone in rotations:
+			print "stone ", stone
 			actions = self.get_legal_actions(stone)
 			#print "actions: ", actions
 			heuristicvals = []
@@ -343,24 +344,29 @@ class TetrisApp(object):
 
 					if check_collision(board, stone, (x, y)):
 						hyp_board = copy.deepcopy(self.Tetris.board)
-						
+						hyp_board_2 = deepcopy(hyp_board)
 						
 							#print join_matrixes(hyp_board, stone, (x,y))
-						try:
+						"""try:
 							difference= self.maxrow(join_matrixes(hyp_board,stone, (x,y)))- self.maxrow(origboard)
 							differencearray.append(difference)
 						except:
 							print "shiiiit"
-						"""						try:
-							new = np.array(join_matrixes(hyp_board, stone, (x,y)))
+						"""
+
+						try:
+							
 							toprowval,toprow = self.toprow(hyp_board)
-							print new[toprow], toprowval
+							new = np.array(join_matrixes(hyp_board, stone, (x,y)))
+
+							print new[toprow], toprowval, len(new[toprow][new[toprow]>0])
 							difference= len(new[toprow][new[toprow]>0]) - toprowval
-							print "difference ", difference
+							if difference>0:
+								print "difference ", difference
 							differencearray.append(difference)
 						except: 
 							differencearray.append(0)
-							print "Oops thats an error"""
+							print "Oops thats an error"
 				#print "array " , len(differencearray)			
 				heuristicvals.append(max(differencearray))
 			bestvalforrot.append(max(heuristicvals))
@@ -368,6 +374,7 @@ class TetrisApp(object):
 			bestxforrot.append(heuristicvals.index(max(heuristicvals)))
 		#print "rotation "
 		#print "options, ", bestvalforrot, " rotations ", rotations
+		print "bestrot ", max(bestvalforrot)
 		bestrot = bestvalforrot.index(max(bestvalforrot))
 		#print "we return ", rotations[bestrot], bestxforrot[bestrot]
 		#print bestrot
