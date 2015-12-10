@@ -155,7 +155,6 @@ class TetrisApp(object):
 		# replace this line so that it always starts with the most troublesome piece
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.init_game()
-		#self.Q = qlearningagent.QLearningAgent()
 	
 	def new_stone(self):
 		# Where we will have to insert the remainder of our adverserial function, right now it just chooses
@@ -279,7 +278,7 @@ class TetrisApp(object):
 	def insta_drop(self):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
-				pass #time.sleep(0.02)
+				pass
 
 	
 	def rotate_stone(self):
@@ -313,8 +312,6 @@ class TetrisApp(object):
 			for x in range(dif_x):
 				self.move(-1)
 				
-
-		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
 		self.insta_drop()
  
 
@@ -357,13 +354,35 @@ class TetrisApp(object):
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestaction
 
+
+	def simpleheuristic(self, board1, board2):
+		b1=deepcopy(board1)
+		b2=deepcopy(board2)
+		print len(b2) , len(b1),
+		if len(b2)!= len(b1):
+			print b1
+		score = self.toprow(b1,b2)
+		
+		if score <= 0:
+			print "Score : ", 10
+			return 10.0
+		print "Score : ", score
+		return float(score)
+  	#   	x = action[0]
+  	#   	y = 0
+  	#   	for i in action[1]:
+  	#   		piece = rotate_clockwise(piece)
+  	#  		while not(check_collision(hyp_board, piece, (x, y))):
+	# 	y+=1
+	# new_board = join_matrixes(hyp_board, piece, (x,y))
+	# return self.toprow(self.Tetris.board,new_board)
+
 	def get_legal_actions(self, stone):
 		rotations = []
 		actions = []
 		rotations.append(stone)
 		for i in range(1,4):
 			rotations.append(rotate_clockwise(rotations[i - 1]))
-			#print rotate_clockwise(rotations[i-1])
 		for rot in rotations:
 			for x in range(cols - len(rot[0])+1):
 				actions.append((rotations.index(rot), x))
@@ -371,44 +390,19 @@ class TetrisApp(object):
 		return actions
 
 
-	def get_states(self):
-		board = copy.deepcopy(self.board)
-		rotations.append(self.stone)
-		#print self.stone
-		for i in range(1,3):
-			rotations.append(rotate_clockwise(rotations[i - 1]))
-		for stone in rotations:
-			pass
-
-
 
 	def average_height(self,board):
-		#board_array = np.array(board)
-		#print len(board),len(board[0])
+
 		transpose= self.arraytranspose(board)
-		#print len(transpose)
 
 		state = []
 
 		for row in transpose:
-			# print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
 		val = float(sum(state))/float(len(state))
-		#print val
-		return val
-		"""board_array_transpose=self.arraytranspose(board)
-		Sum= 0
-		#print "board_array_transpose = ", board_array_transpose 
-		for row in board_array_transpose:
 
-			for i in range(len(row)):
-				if row[cols-i] > 0:
-					break
-				Sum +=1
-		val = float(Sum)/float(len(board))
-		print "val", val
 		return val
-		"""
+
 
 	def difference_squared(self,board, column):
 		#board_array = np.array(board)
@@ -544,8 +538,8 @@ class TetrisApp(object):
 			row1, row2,row3, =np.array(board[i]), np.array(board[i+1]), np.array(board[i+2])
 			row4, row5, row6 = np.array(hyp_board[i]), np.array(hyp_board[i+1]), np.array(hyp_board[i+2])
 
-			val1,val2,val3 = len(row1[row1>0]),len(row2[row2>0]),len(row3[row3>0])
-			val4,val5,val6 = len(row4[row4>0]),len(row5[row5>0]),len(row6[row6>0])
+			val1,val2,val3 = len(row1[row1>0]),2*len(row2[row2>0]),3*len(row3[row3>0])
+			val4,val5,val6 = len(row4[row4>0]),2*len(row5[row5>0]),3*len(row6[row6>0])
 			if val1>0 :
 
 				return (val4+val5+val6)-(val1 + val2+val3)

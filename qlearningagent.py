@@ -171,16 +171,10 @@ class QLearningAgent(TetrisApp):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        #print "this is\n"
-        #print state,action
+
         if hash(str((state, action))) not in self.qval:
-          #print state, action
+
           self.qval[hash(str((state,action)))]=0.0
-          # print "we're getting this"
-        # if self.qval[hash(str((state,action)))]!=0:
-          # print "Qval=",self.qval[hash(str((state,action)))] 
-        #elif self.qval[hash(str((state,action)))]>0:
-          #print "we're getting somthing else",  self.qval[hash(str((state,action)))]
         return self.qval[hash(str((state,action)))]
 
     def computeValueFromQValues(self, state):
@@ -195,7 +189,7 @@ class QLearningAgent(TetrisApp):
         action=self.computeActionFromQValues(state)
         if action != None:
           val= self.getQValue(state,action)
-        #print val
+
         return val
 
     def computeActionFromQValues(self, state):
@@ -232,7 +226,6 @@ class QLearningAgent(TetrisApp):
           HINT: You might want to use util.flipCoin(prob)
           HINT: To pick randomly from a list, use random.choice(list)
         """
-        # Pick Action
         legalActions = self.Tetris.get_legal_actions(state[1])
         action = None
         "*** YOUR CODE HERE ***"
@@ -282,7 +275,7 @@ class QLearningAgent(TetrisApp):
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
 
-      if n< 0:
+      if n< 1000:
         self.epsilon = 1
       else:
         self.epsilon = 1/math.log(float(n)+1)# 1./float(15*math.log(n)+1.)
@@ -298,21 +291,22 @@ class QLearningAgent(TetrisApp):
       
       dont_burn_my_cpu = pygame.time.Clock()
       rot, col = self.getAction((self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone))
-      prevboard = self.Tetris.get_board_state(self.Tetris.board)
+      #prevboard = self.Tetris.get_board_state(self.Tetris.board)
+      prevboard = self.Tetris.board
       n+=1
-
       while not(self.Tetris.gameover):
 
-        self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.heuristic(self.Tetris.board)) 
-
+        #self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.heuristic(self.Tetris.board)) 
+        self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.simpleheuristic(prevboard, self.Tetris.board)) 
         piece = self.Tetris.stone
-        prevboard = self.Tetris.get_board_state(self.Tetris.board)
+        #prevboard = self.Tetris.get_board_state(self.Tetris.board)
+        prevboard = deepcopy(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
         i= 1
         while i ==1:
-          if n % 2 == 0:
-              print "iteration: ", n
+          #if n % 2 == 0:
+          #   print "iteration: ", n
           self.Tetris.screen.fill((0,0,0))
           if self.Tetris.gameover:
             self.Tetris.center_msg("""Game Over!\nYour score: %d
@@ -366,11 +360,10 @@ if __name__ == '__main__':
   linescleared = []
   piecesdropped = []
 
-  for i in range(11000):
+  for i in range(10000):
 
     Q.run(i+1)
     if (i % 2 == 0):
-      # print i,"th iteration: ", Q.Tetris.lines, "lines cleared"
       iters.append(i)
       linescleared.append(Q.Tetris.lines)
       piecesdropped.append(Q.Tetris.numpieces)
