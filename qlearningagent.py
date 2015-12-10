@@ -365,13 +365,16 @@ if __name__ == '__main__':
   iters = []
   linescleared = []
   piecesdropped = []
+
   for i in range(11000):
+
     Q.run(i+1)
     if (i % 2 == 0):
       # print i,"th iteration: ", Q.Tetris.lines, "lines cleared"
       iters.append(i)
       linescleared.append(Q.Tetris.lines)
       piecesdropped.append(Q.Tetris.numpieces)
+
   pickle.dump(Q.qval, open("Q.p", "wb"))
   plt.figure(1)
   plt.plot(iters, linescleared)
@@ -385,6 +388,7 @@ if __name__ == '__main__':
   plt.xlabel("Number of Iterations of Q Learning")
   plt.title("Performance Throughout Learning")
   plt.show()
+
 
   # WE BE PICKLIN
   file = open('qvalues', 'w')

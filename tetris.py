@@ -101,10 +101,10 @@ for stone in tetris_shapes:
 		stone = rotate_clockwise(stone)
 		rots+=1
 		rotdict[str(stone)]= rots
+
 def check_collision(board, shape, offset):
 	off_x, off_y = offset
 	for cy, row in enumerate(shape):
-
 		for cx, cell in enumerate(row):
 			try:
 				if cell and board[ cy + off_y ][ cx + off_x ]:
@@ -122,7 +122,6 @@ def join_matrixes(mat1, mat2, mat2_off):
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
-			
 			mat1[cy+off_y-1][cx+off_x] += val
 	return mat1
 
@@ -176,6 +175,7 @@ class TetrisApp(object):
 	
 	def init_game(self):
 		self.board = new_board()
+		self.numpieces = 0
 		self.new_stone()
 		self.level = 1
 		self.score = 0
@@ -314,6 +314,7 @@ class TetrisApp(object):
 				self.move(-1)
 				
 
+		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
 		self.insta_drop()
  
 
@@ -489,18 +490,22 @@ class TetrisApp(object):
 			avg = np.average(rowcount)
 		return avg 
 
+	def heur_height(self, board):
+		transpose=self.arraytranspose(board)
+		state = []
+
+		for row in transpose:
+			# print row
+			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
+		#print state
+		average=float(sum(state))/float(len(state))
+		return average
+
 	def heuristic(self, possboard):
 		board = np.array(possboard)
 		score = 0
 
-		# # What they did in the paper, but all the vals are still neg. and we need some pos.
-		# score -= 5 * self.average_height(board)
-		# score += self.heur_diffsum(board)
-		# score -= 16 * self.heur_empty_spaces(board)
-		# print "Score: ", score
-		# return score
-
-		score += 0.15 * self.heur_diffsum(board)
+		score += 0.05 * self.heur_diffsum(board)
 		score += 75 * self.heur_row_removal(board)
 		score -= 1 * self.heur_empty_spaces(board)
 		score += 3 * self.heur_bordering_pieces(board)
@@ -512,34 +517,23 @@ class TetrisApp(object):
 
 	def get_board_state(self, board):
 		
-		#print len(board),len(board[0])
 		transpose= self.arraytranspose(board)
-		#print len(transpose)
 
 		state = []
-
 		for row in transpose:
-			# print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
-		#print state
 		row = rows-max(state)
-
 		if max(state) >3:
-
-			array = np.array(board[row:row+4])
-			#if array ==[]:
-			#	print "error"
+			array = np.array(board[row:row+3])
 			array[array >0] = 1
 		else: 
-			#print "hi"
 			array = np.array(board[rows-4:rows])
 			array[array >0] = 1
-		#print len(array),len(array[0])
 		posed = self.arraytranspose(array)
 		finalarray = []
 		for row in posed:
-			finalarray.append(next((4-i for i, x in enumerate(row) if x>0), 0))
-		#print  finalarray
+			finalarray.append(next((3-i for i, x in enumerate(row) if x>0), 0))
+
 		return finalarray
 		
 	
@@ -551,11 +545,9 @@ class TetrisApp(object):
 
 			val1,val2,val3 = len(row1[row1>0]),len(row2[row2>0]),len(row3[row3>0])
 			val4,val5,val6 = len(row4[row4>0]),len(row5[row5>0]),len(row6[row6>0])
-			#print  row1, row2, row3, row4, val1, val2, val3, val4
 			if val1>0 :
 
-				#print "val  ", (val3+val4)-(val2 + val1)
-				return (val4+val5+val6)-(val1 + val2+val3)
+]				return (val4+val5+val6)-(val1 + val2+val3)
 
 		return 0.
 
@@ -566,8 +558,7 @@ class TetrisApp(object):
 			val = len(row[row>0])
 			if val>maxval:
 				maxval = val
-			# print "val", val
-		#print "maxval ", maxval
+
 		return maxval
 
 
@@ -576,16 +567,13 @@ class TetrisApp(object):
 		# print board2
 		board3 = [[0 for i in range(len(board2))] for i in range(len(board2[0]))]
 		# print len(board2),len(board2[0])
-		# print len(board3),len(board3[0])
-		# print len(board),len(board[0])
+
 		for i in range(len(board2[0])):
 			for j in range(len(board2)):
 				
-				#print i,j
-				# print i,j, board2[j][i]
+
 				board3[i][j] = board2[j][i]
 
-		# print board3
 		return  board3
 
 """
