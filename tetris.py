@@ -244,10 +244,12 @@ class TetrisApp(object):
 			                       self.stone,
 			                       (new_x, self.stone_y)):
 				self.stone_x = new_x
+
 	def quit(self):
 		self.center_msg("Exiting...")
 		pygame.display.update()
 		sys.exit()
+
 	def drop(self, manual):
 		if not self.gameover and not self.paused:
 			self.score += 1 if manual else 0
@@ -277,7 +279,7 @@ class TetrisApp(object):
 	def insta_drop(self):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
-				pass
+				pass #time.sleep(0.02)
 
 	
 	def rotate_stone(self):
@@ -436,7 +438,9 @@ class TetrisApp(object):
 			diffsq.append(self.difference_squared(board,i))
 		diffsqsum = sum(diffsq)
 		avgheight =self.average_height(board)
-		return -(diffsqsum+avgheight)
+		# print "diffsqsum: ", diffsqsum
+		# print "avgheight: ", avgheight
+		return -(diffsqsum+avgheight*4)
 
 	def heur_row_removal(self, board):
 		score = 0
@@ -489,13 +493,20 @@ class TetrisApp(object):
 		board = np.array(possboard)
 		score = 0
 
+		# # What they did in the paper, but all the vals are still neg. and we need some pos.
+		# score -= 5 * self.average_height(board)
+		# score += self.heur_diffsum(board)
+		# score -= 16 * self.heur_empty_spaces(board)
+		# print "Score: ", score
+		# return score
+
 		score += 0.15 * self.heur_diffsum(board)
 		score += 75 * self.heur_row_removal(board)
 		score -= 1 * self.heur_empty_spaces(board)
 		score += 3 * self.heur_bordering_pieces(board)
 		score += 2 * self.heur_touching_pieces(board)
 		score += 3 * self.heur_row_count(board)
-		print "Score: ", score
+		# print "Score: ", score
 		return score
 
 

@@ -43,7 +43,7 @@ tetris_shapes = [
   [[0, 0, 5],
    [5, 5, 5]],
   
-  #[[6, 6, 6, 6]],
+  [[6, 6, 6, 6]],
   
   [[7, 7],
    [7, 7]]
@@ -282,7 +282,7 @@ class QLearningAgent(TetrisApp):
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
 
-      if n< 100:
+      if n< 0:
         self.epsilon = 1
       else:
         self.epsilon = 1/math.log(float(n)+1)# 1./float(15*math.log(n)+1.)
@@ -311,7 +311,8 @@ class QLearningAgent(TetrisApp):
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
         i= 1
         while i ==1:
-  
+          if n % 2 == 0:
+              print "iteration: ", n
           self.Tetris.screen.fill((0,0,0))
           if self.Tetris.gameover:
             self.Tetris.center_msg("""Game Over!\nYour score: %d
@@ -364,7 +365,7 @@ if __name__ == '__main__':
   iters = []
   linescleared = []
   piecesdropped = []
-  for i in range(2):
+  for i in range(11000):
     Q.run(i+1)
     if (i % 2 == 0):
       # print i,"th iteration: ", Q.Tetris.lines, "lines cleared"
@@ -387,7 +388,7 @@ if __name__ == '__main__':
 
   # WE BE PICKLIN
   file = open('qvalues', 'w')
-  pickle.dump(Q.qval, file)
+  pickle.dump(Q.qval2, file)
 
   file.close()
 
