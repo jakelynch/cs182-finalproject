@@ -485,6 +485,17 @@ class TetrisApp(object):
 			avg = np.average(rowcount)
 		return avg 
 
+	def heur_height(self, board):
+		transpose=self.arraytranspose(board)
+		state = []
+
+		for row in transpose:
+			# print row
+			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
+		#print state
+		average=float(sum(state))/float(len(state))
+		return average
+
 	def heuristic(self, possboard):
 		board = np.array(possboard)
 		score = 0
@@ -565,16 +576,13 @@ class TetrisApp(object):
 		# print board2
 		board3 = [[0 for i in range(len(board2))] for i in range(len(board2[0]))]
 		# print len(board2),len(board2[0])
-		# print len(board3),len(board3[0])
-		# print len(board),len(board[0])
+
 		for i in range(len(board2[0])):
 			for j in range(len(board2)):
 				
-				#print i,j
-				# print i,j, board2[j][i]
+
 				board3[i][j] = board2[j][i]
 
-		# print board3
 		return  board3
 
 """
