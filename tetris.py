@@ -326,6 +326,7 @@ class TetrisApp(object):
 		heuristicvals = []
 		y = 0
 		differencearray= []
+		bestactiondict={}
 
 		for action in actions:
 			y=0
@@ -343,16 +344,14 @@ class TetrisApp(object):
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 
-			for i in range(len(new_board)-1):
-				if 0 not in new_board[i] and max(new_board[i])<8:
-					return action
-
+			# for i in range(len(new_board)-1):
+			# 	if 0 not in new_board[i] and max(new_board[i])<8:
+			# 		return action
+			print "action is ", action
+			bestactiondict[action] = (self.toprow(self.Tetris.board,new_board),new_board)
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
-
-
-
 		bestaction = actions[differencearray.index(max(differencearray))]
-		return bestaction
+		return bestactiondict, max(differencearray)
 	def ideal_place_2(self, board):
 		actions = self.get_legal_actions(self.Tetris.stone)
 		origboard=deepcopy(board)
@@ -367,9 +366,9 @@ class TetrisApp(object):
 			while not(check_collision(hyp_board, rotpiece, (x, y))):
 				y+=1
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
-			# for i in range(len(new_board)-1):
-			# 	if 0 not in new_board[i] and max(new_board[i])<8:
-			# 		return action
+			for i in range(len(new_board)-1):
+				if 0 not in new_board[i] and max(new_board[i])<8:
+					return action
 			differencearray.append(self.heuristic(new_board))
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestaction
@@ -528,7 +527,7 @@ class TetrisApp(object):
 		score -= 5.*self.heur_avg_height(board)
 		score -= self.heur_diffsum(board)
 
-		score -= 16 * self.heur_empty_spaces(board)
+		score -= 26 * self.heur_empty_spaces(board)
 		#score += 3 * self.heur_bordering_pieces(board)
 		#score += 2 * self.heur_touching_pieces(board)
 		#score += 3 * self.heur_row_count(board)

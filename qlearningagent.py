@@ -232,7 +232,14 @@ class QLearningAgent(TetrisApp):
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
                 action = self.ideal_place_2(self.Tetris.board)
-              
+                value = {}
+                hyp_board = deepcopy(self.Tetris.board)
+                actionlist, maxval = self.ideal_place(self.Tetris.board)
+                for key,val in actionlist.items():
+                  print key, val[0]
+                  print "val is ", val[0], self.ideal_place(val[1])[1]
+                  value[key] = val[0] + self.discount*self.ideal_place(val[1])[1]
+                return max(value)
               else:
                 action = self.computeActionFromQValues(state)
 
