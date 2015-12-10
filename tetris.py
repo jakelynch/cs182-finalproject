@@ -87,9 +87,11 @@ tetris_shapes = [
 ]
 def deepishcopyhelper(row):
 	return row[:]
+
 def deepishcopy(org):
 	out = map(deepishcopyhelper,org)
 	return out
+
 def rotate_clockwise(shape):
 	return [[ shape[y][x]
 			for y in xrange(len(shape)) ]
@@ -119,11 +121,13 @@ def check_collision(board, shape, offset):
 def remove_row(board, row):
 	del board[row]
 	return [[0 for i in xrange(cols)]] + board
-	
+
+'''Joins two matrices and adds their indexes together, this is used quite
+frequently throughout our project due to the fact that we frequently had 
+to add two different versions of a board together, like placing the stone
+on the board'''
 def join_matrixes(mat1, mat2, mat2_off):
-	
 	mat3 = deepishcopy(mat1)
-	#print mat3
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
@@ -164,12 +168,11 @@ class TetrisApp(object):
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.stone_x = int(cols / 2 - len(self.stone[0])/2)
 		self.stone_y = 0
-		
+		# Checks to ensure the piece isn't automatically above height of board
 		if check_collision(self.board,
 		                   self.stone,
 		                   (self.stone_x, self.stone_y)):
 			self.gameover = True
-
 	
 	def init_game(self):
 		self.board = new_board()
@@ -278,7 +281,6 @@ class TetrisApp(object):
 		if not self.gameover and not self.paused:
 			while(not self.drop(True)):
 				pass
-
 	
 	def rotate_stone(self):
 		if not self.gameover and not self.paused:
@@ -313,23 +315,31 @@ class TetrisApp(object):
 				
 		self.insta_drop()
  
-
 	def ideal_place(self,origboard):
-		""" We need to find a way to stop this from running on every loop because the way it is written
-		breaks the game when a piece is at the bottom, it ends the game and passes an error, so we need to
-		make it so that this function is run once when a new stone appears, then place_brick runs until the
-		brick is placed then the game will call a new stone and the process will repeat"""
-
 		actions = self.get_legal_actions(self.Tetris.stone)
 		differencearray= []
 		bestactiondict={}
 		hyp_board = board
-		differencearray = map((lambda x: self.ideal_helper_simple(hyp_board, x)), actions)#,[hyp_board for i in range(len(actions))])
+		differencearray = map((lambda x: self.ideal_helper_simple(hyp_board, x)), actions)
 		return differencearray
 
+	# A better version of ideal_place that we designed and used for testing
+	def ideal_place_2(self, board,actions,nextpiece):
+		if nextpiece:
+			actions = self.Tetris.get_legal_actions(self.Tetris.next_stone)
+		differencearray= []
+		bestactiondict={}
+		hyp_board = board
+		differencearray = map((lambda x: self.ideal_helper(hyp_board, x, nextpiece)), actions)
+		return differencearray
+
+	'''These are two different versions of the helper function
+	that we use in ideal_place, the reason we have two is because this
+	is one example of the numerous times that we would create a function
+	and run it to get results then later redesigning it so that it is 
+	more optimized'''
 	def ideal_helper(self,hyp_board,action,nextpiece):
 		y = 0
-		#print y
 		rot, x = action
 		if not(nextpiece):
 			rotpiece= deepishcopy(self.Tetris.stone)
@@ -341,6 +351,7 @@ class TetrisApp(object):
 			y+=1
 		new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 		return (self.heuristic(new_board),action, new_board)
+
 	def ideal_helper_simple(self,hyp_board,action,nextpiece):
 		y=0
 		rot, x = action
@@ -354,27 +365,15 @@ class TetrisApp(object):
 			y+=1
 		new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 		return (self.simpleheuristic(new_board),action, new_board)
-	def ideal_place_2(self, board,actions,nextpiece):
-		if nextpiece:
-			actions = self.Tetris.get_legal_actions(self.Tetris.next_stone)
-			#print len(actions)
-		differencearray= []
-		bestactiondict={}
-		hyp_board = board
 
-		differencearray = map((lambda x: self.ideal_helper(hyp_board, x, nextpiece)), actions)#,[hyp_board for i in range(len(actions))])
-		return differencearray
-
+	# Very basic simple heuristic we designed and used
 	def simpleheuristic(self, board1, board2):
 		b1=deepishcopy(board1)
 		b2=deepishcopy(board2)
-
 		score = self.toprow(b1,b2)
-		
 		if score <= 0:
 			return 10.0
 		return float(score)
-
 
 	def get_legal_actions(self, stone):
 		rotations = []
@@ -385,27 +384,18 @@ class TetrisApp(object):
 		for rot in rotations:
 			for x in range(cols - len(rot[0])+1):
 				actions.append((rotations.index(rot), x))
-
 		return actions
 
-
-
 	def average_height(self,board):
-
 		transpose= self.arraytranspose(board)
-
 		state = []
-
 		for row in transpose:
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
 		val = float(sum(state))/float(len(state))
-
 		return val
-
 
 	def difference_squared(self,board, column):
 		transpose=self.arraytranspose(board)
-		
 		Sum1= 0
 		Sum2 = 0
 		Sum3= 0
@@ -418,17 +408,20 @@ class TetrisApp(object):
 			if transpose[column-1][i]> 0:
 				break
 			Sum2+=1
-
 		sq_difference+= (Sum2-Sum1)**2
 		return sq_difference
 
+	'''all of these functions beginning with heur were used at one point in time
+	as we were changing our heuristic function to develop the version with weights 
+	given to each of these different mini heuristics that would create the best
+	results'''
 	def heur_diffsum(self, board):
 		diffsq=[]
 		for i in range(1,cols):
 			diffsq.append(self.difference_squared(board,i))
 		diffsqsum = sum(diffsq)
-
 		return diffsqsum
+
 	def heur_avg_height(self,board):
 		return self.average_height(board)
 
@@ -441,7 +434,6 @@ class TetrisApp(object):
 
 	def heur_empty_spaces(self, board):
 		score = 0
-
 		for i in range(rows):
 			for j in range(cols):
 				if board[i][j] != 0:
@@ -483,31 +475,23 @@ class TetrisApp(object):
 	def heur_height(self, board):
 		transpose=self.arraytranspose(board)
 		state = []
-
 		for row in transpose:
-			# print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
-		#print state
 		average=float(sum(state))/float(len(state))
 		return average
 
+	'''This is the real heuristic which ended up implementing the combination
+	of weights we found most effective after our testing'''
 	def heuristic(self, possboard):
 		board = np.array(possboard)
 		score = 0
-		# if self.heur_row_removal(board)>0:
-		# 	print "we use this"
-		# 	return -0.01
 		score -= 5.*self.heur_avg_height(board)
 		score -= self.heur_diffsum(board)
 		score -= 16 * self.heur_empty_spaces(board)
-
 		return score
 
-
-	def get_board_state(self, board):
-		
+	def get_board_state(self, board):	
 		transpose= self.arraytranspose(board)
-
 		state = []
 		for row in transpose:
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
@@ -522,58 +506,33 @@ class TetrisApp(object):
 		finalarray = []
 		for row in posed:
 			finalarray.append(next((3-i for i, x in enumerate(row) if x>0), 0))
-
 		return finalarray
-		
-	
+	'''toprow and maxrow here are used to return certain scores that we ended up 
+	implementing after a while of attempting various versions of our heuristic'''
 	def toprow(self,board,hyp_board):
 		val = 0
 		for i in range(len(board)-2):
-			# row1, row2,row3, =np.array(board[i]), np.array(board[i+1]), np.array(board[i+2])
-			# row4, row5, row6 = np.array(hyp_board[i]), np.array(hyp_board[i+1]), np.array(hyp_board[i+2])
 			row1 = np.array(board[i])
 			row2 = np.array(hyp_board[i])
-			# val1,val2,val3 = len(row1[row1>0]),2*len(row2[row2>0]),3*len(row3[row3>0])
-			# val4,val5,val6 = len(row4[row4>0]),2*len(row5[row5>0]),3*len(row6[row6>0])
 			val1,val2,val3 = len(row1[row1>0]),len(row2[row2>0]),len(row3[row3>0])
 			val4,val5,val6 = len(row4[row4>0]),len(row5[row5>0]),len(row6[row6>0])
-			if val1>0 :
-				return val4-val1
-
-				# return (val4+val5+val6)-(val1 + val2+val3)
-
+			if val1 > 0:
+				return val4 - val1
 		return 0.
 
 	def maxrow(self,board):
 		maxval = 0
-
 		for row in board[:len(board)-1]:
 			row = np.array(row)
 			val = len(row[row>0])
 			if val>maxval:
 				maxval = val
-
 		return maxval
-
 
 	def arraytranspose(self, board):
 		board2 = deepishcopy(board)
-		# print board2
 		board3 = [[0 for i in range(len(board2))] for i in range(len(board2[0]))]
-		# print len(board2),len(board2[0])
-
 		for i in range(len(board2[0])):
 			for j in range(len(board2)):
-				
-
 				board3[i][j] = board2[j][i]
-
 		return  board3
-
-"""
-
-if __name__ == '__main__':
-	App = TetrisApp()
-	for i in range(10):
-		App.run()
-"""

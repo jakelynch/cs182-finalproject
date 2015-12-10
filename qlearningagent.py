@@ -6,7 +6,6 @@ from random import randrange as rand
 import pygame, sys, copy
 import  random,util,math
 import matplotlib.pyplot as plt
-##import qlearningagent
 import time
 from copy import deepcopy
 import pickle
@@ -18,8 +17,8 @@ rows =    22
 maxfps =  2000000
 
 # Variables setting amount of times each part of program runs
-value_iter_rounds = 5#1000 
-total_iterations = 55#11000
+value_iter_rounds = 1000 
+total_iterations = 11000
 
 colors = [
 (0,   0,   0  ),
@@ -70,7 +69,7 @@ for stone in tetris_shapes:
     stone = rotate_clockwise(stone)
     rots+=1
     rotdict[str(stone)]= rots
-#print rotdict
+
 def check_collision(board, shape, offset):
   off_x, off_y = offset
   for cy, row in enumerate(shape):
@@ -87,7 +86,6 @@ def remove_row(board, row):
   return [[0 for i in xrange(cols)]] + board
   
 def join_matrixes(mat1, mat2, mat2_off):
-  #print "mat1 = " + str(mat1), "mat2 = " + str(mat2), "mat2_off = " + str(mat2_off)
   off_x, off_y = mat2_off
   for cy, row in enumerate(mat2):
     for cx, val in enumerate(row):
@@ -100,49 +98,8 @@ def new_board():
   board += [[ 9 for x in xrange(cols)] for i in xrange(1)]
   return board
 
-
-
-class Agent:
-    """
-    An agent must define a getAction method, but may also define the
-    following methods which will be called if they exist:
-
-    def registerInitialState(self, state): # inspects the starting state
-    """
-    def __init__(self, index=0):
-        self.index = index
-
-    def getAction(self, state):
-        """
-        The Agent will receive a GameState (from either {pacman, capture, sonar}.py) and
-        must return an action from Directions.{North, South, East, West, Stop}
-        """
-        raiseNotDefined()
-
-
 class QLearningAgent(TetrisApp):
-    """
-      Q-Learning Agent
-
-      Functions you should fill in:
-        - computeValueFromQValues
-        - computeActionFromQValues
-        - getQValue
-        - getAction
-        - update
-
-      Instance variables you have access to
-        - self.epsilon (exploration prob)
-        - self.alpha (learning rate)
-        - self.discount (discount rate)
-
-      Functions you should use
-        - self.getLegalActions(state)
-          which returns legal actions for a state
-    """
     def __init__(self, alpha = 0.01, gamma = .5, epsilon = 1):
-        "You can initialize Q-values here..."
-        "reinforcementAgent.__init__(self, **args)"
         self.qval=util.Counter()
         self.alpha=alpha
         self.epsilon=epsilon
@@ -150,63 +107,25 @@ class QLearningAgent(TetrisApp):
         self.Tetris= TetrisApp()
         self.boardprev=0.
 
-        "*** YOUR CODE HERE ***"
-
-    """def getLegalActions(self,state):
-                    
-                      Get the actions available for a given
-                      state. This is what you should use to
-                      obtain legal actions for a state
-                    
-                    return self.actionFn(state)
-            """
     def observeTransition(self, state,action,nextState,deltaReward):
-        """
-            Called by environment to inform agent that a transition has
-            been observed. This will result in a call to self.update
-            on the same arguments
-
-            NOTE: Do *not* override or call this function
-        """
         self.episodeRewards += deltaReward
         self.update(state,action,nextState,deltaReward)
 
+    # returns 0.0 if new state or the q value if we've seen it, and because
+    # we cant use tuples as keys in a python dict we hash them
     def getQValue(self, state, action):
-        """
-          Returns Q(state,action)
-          Should return 0.0 if we have never seen a state
-          or the Q node value otherwise
-        """
-        "*** YOUR CODE HERE ***"
-
         if hash(str((state, action))) not in self.qval:
-
           self.qval[hash(str((state,action)))]=0.0
         return self.qval[hash(str((state,action)))]
 
     def computeValueFromQValues(self, state):
-        """
-          Returns max_action Q(state,action)
-          where the max is over legal actions.  Note that if
-          there are no legal actions, which is the case at the
-          terminal state, you should return a value of 0.0.
-        """
-        "*** YOUR CODE HERE ***"
         val = 0.0
         action=self.computeActionFromQValues(state)
         if action != None:
           val= self.getQValue(state,action)
-
         return val
 
     def computeActionFromQValues(self, state):
-        """
-          Compute the best action to take in a state.  Note that if there
-          are no legal actions, which is the case at the terminal state,
-          you should return None.
-        """
-        "*** YOUR CODE HERE ***"
-        
         finalaction=None
         legalActions = self.Tetris.get_legal_actions(state[1])
 
@@ -214,72 +133,31 @@ class QLearningAgent(TetrisApp):
           maxval= -999999
           for action in self.Tetris.get_legal_actions(state[1]):
             Qval=self.getQValue(state,action)
-
-            
             if Qval>=maxval:
               maxval=Qval
               finalaction=action
-
         return finalaction
 
     def helperfunction(self, lst, legalactions):
       value, action, new_board = lst
-
-      start = time.clock()
       val = (value + max(self.ideal_place_2(new_board, legalactions,True))[0], action)
-      # end = time.clock()
-      # print end-start
       return val
-    def getAction(self, state):
-        """
-          Compute the action to take in the current state.  With
-          probability self.epsilon, we should take a random action and
-          take the best policy action otherwise.  Note that if there are
-          no legal actions, which is the case at the terminal state, you
-          should choose None as the action.
 
-          HINT: You might want to use util.flipCoin(prob)
-          HINT: To pick randomly from a list, use random.choice(list)
-        """
+
+    def getAction(self, state):
         legalActions = self.Tetris.get_legal_actions(state[1])
         action = None
-        "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
                 valuedict = {}
                 actionlist= self.ideal_place_2(self.Tetris.board, legalActions, False)
-<<<<<<< HEAD
-<<<<<<< HEAD
-                # end1 = time.clock()
                 valuelist = map((lambda x: self.helperfunction(x, legalActions)), actionlist)
-                # end2= time.clock()
-                # print end-start
-=======
-                #end1 = time.clock()
-                valuelist = map((lambda x: self.helperfunction(x, legalActions)), actionlist)
-                #end2= time.clock()
-                #print end-start
->>>>>>> 79532a36fd8a965480b7de297b37cf9661cd82f6
-=======
-                valuelist = map((lambda x: self.helperfunction(x, legalActions)), actionlist)
->>>>>>> 308a0f16dd64749a8e4a6f41e4a8e07316468611
                 return max(valuelist)[1]
-                
               else:
                 action = self.computeActionFromQValues(state)
-
         return action
         
     def update(self, state, action, nextState, reward):
-        """
-          The parent class calls this to observe a
-          state = action => nextState and reward transition.
-          You should do your Q-Value update here
-
-          NOTE: You should never call this function,
-          it will be called on your behalf
-        """
-        "*** YOUR CODE HERE ***"
         self.qval[hash(str((state,action)))]+= self.alpha*(reward+self.discount * self.computeValueFromQValues(nextState) - self.getQValue(state,action))
   
     def getPolicy(self, state):
@@ -300,45 +178,29 @@ class QLearningAgent(TetrisApp):
         'RETURN': self.Tetris.insta_drop
       }
 
-      """ try: 
-                       print self.Tetris.board-self.boardprev
-                     except:
-                       pass"""
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
 
       if n< value_iter_rounds:
         self.epsilon = 1
       else:
-        self.epsilon = 1/(15.*math.log(float(n)+1))# 1./float(15*math.log(n)+1.)
-
-      #self.epsilon = 1./float(15*math.log(n)+1.)
-
-
-      
+        self.epsilon = 1/(15.*math.log(float(n)+1))
+  
       self.Tetris.gameover = False
       self.Tetris.paused = False
-      #print self.Tetris.board
-
       
       dont_burn_my_cpu = pygame.time.Clock()
       rot, col = self.getAction((self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone))
-      #prevboard = self.Tetris.get_board_state(self.Tetris.board)
       prevboard = self.Tetris.board
       n+=1
       while not(self.Tetris.gameover):
-
         self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.heuristic(self.Tetris.board)) 
-        # self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.simpleheuristic(prevboard, self.Tetris.board)) 
         piece = self.Tetris.stone
-        #prevboard = self.Tetris.get_board_state(self.Tetris.board)
         prevboard = tetris.deepishcopy(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
         i= 1
         while i ==1:
-          #if n % 2 == 0:
-          #   print "iteration: ", n
           self.Tetris.screen.fill((0,0,0))
           if self.Tetris.gameover:
             self.Tetris.center_msg("""Game Over!\nYour score: %d
@@ -384,8 +246,6 @@ class QLearningAgent(TetrisApp):
                 +key):
                   key_actions[key]()
               
-        #dont_burn_my_cpu.tick(maxfps)
-
 if __name__ == '__main__':
   Q = QLearningAgent()
   iters = []
@@ -400,6 +260,8 @@ if __name__ == '__main__':
       linescleared.append(Q.Tetris.lines)
       piecesdropped.append(Q.Tetris.numpieces)
 
+  # Here is where we pickled the Q data and plotted our graphs once
+  # the program had completed running
   pickle.dump(Q.qval, open("Q.p", "wb"))
   plt.figure(1)
   plt.plot(iters, linescleared)
@@ -414,8 +276,7 @@ if __name__ == '__main__':
   plt.title("Performance Throughout Learning")
   plt.show()
 
-
-  # WE BE PICKLIN
+  # pickle time
   file = open('qvalues', 'w')
   pickle.dump(Q.qval2, file)
 
