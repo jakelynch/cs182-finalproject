@@ -278,7 +278,7 @@ class QLearningAgent(TetrisApp):
       if n< 1000:
         self.epsilon = 1
       else:
-        self.epsilon = 1/math.log(float(n)+1)# 1./float(15*math.log(n)+1.)
+        self.epsilon = 1/(15.*math.log(float(n)+1))# 1./float(15*math.log(n)+1.)
 
       #self.epsilon = 1./float(15*math.log(n)+1.)
 
