@@ -317,14 +317,9 @@ class TetrisApp(object):
 		board = copy.deepcopy(origboard)
 		heuristicvals = []
 		y = 0
-<<<<<<< HEAD
-		differencearray = []
-		row_removal_dict = {}
-=======
 		differencearray= []
 		bestactiondict={}
 
->>>>>>> 1c3f27d284d72c79f05dd59409509578c99897fa
 		for action in actions:
 			y=0
 			rot, x = action
@@ -340,19 +335,17 @@ class TetrisApp(object):
 
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
-<<<<<<< HEAD
-			for i in range(len(new_board)-1):
-				if 0 not in new_board[i] and max(new_board[i])<8:
-					row_removal_dict[action] = self.heur_empty_spaces(new_board)
-			differencearray.append(self.toprow(self.Tetris.board,new_board))
-		if row_removal_dict == {}:
-			bestaction = actions[differencearray.index(max(differencearray))]
-			return bestaction
-		else:
-			return min(row_removal_dict, key = row_removal_dict.get)
+		# 	for i in range(len(new_board)-1):
+		# 		if 0 not in new_board[i] and max(new_board[i])<8:
+		# 			row_removal_dict[action] = self.heur_empty_spaces(new_board)
+		# 	differencearray.append(self.toprow(self.Tetris.board,new_board))
+		# if row_removal_dict == {}:
+		# 	bestaction = actions[differencearray.index(max(differencearray))]
+		# 	return bestaction
+		# else:
+		# 	return min(row_removal_dict, key = row_removal_dict.get)
 			
 
-=======
 
 			# for i in range(len(new_board)-1):
 			# 	if 0 not in new_board[i] and max(new_board[i])<8:
@@ -362,7 +355,7 @@ class TetrisApp(object):
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestactiondict, max(differencearray)
->>>>>>> 1c3f27d284d72c79f05dd59409509578c99897fa
+		
 	def ideal_place_2(self, board):
 		actions = self.get_legal_actions(self.Tetris.stone)
 		origboard=deepcopy(board)
