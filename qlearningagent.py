@@ -248,13 +248,13 @@ class QLearningAgent(TetrisApp):
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
                 valuedict = {}
-                start = time.clock()
+                #start = time.clock()
 
                 actionlist= self.ideal_place_2(self.Tetris.board, legalActions, False)
-                end1 = time.clock()
+                #end1 = time.clock()
                 valuelist = map((lambda x: self.helperfunction(x, legalActions)), actionlist)
-                end2= time.clock()
-                print end-start
+                #end2= time.clock()
+                #print end-start
                 return max(valuelist)[1]
                 
               else:

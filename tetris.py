@@ -342,7 +342,7 @@ class TetrisApp(object):
 		new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 		return (self.heuristic(new_board),action, new_board)
 	def ideal_helper_simple(self,hyp_board,action,nextpiece):
-		y=self.maxrow(board)-1
+		y=0
 		rot, x = action
 		if netxpiece:
 			rotpiece = deepishcopy(self.Tetris.next_stone)
