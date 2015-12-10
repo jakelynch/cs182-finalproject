@@ -236,7 +236,6 @@ class QLearningAgent(TetrisApp):
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
                 valuedict = {}
-                #hyp_board = deepcopy(self.Tetris.board)
                 actionlist= self.ideal_place_2(self.Tetris.board)
                 valuelist = map(self.helperfunction, actionlist)
                 return max(valuelist)[1]
@@ -244,7 +243,7 @@ class QLearningAgent(TetrisApp):
                 action = self.computeActionFromQValues(state)
 
         return action
-
+        
     def update(self, state, action, nextState, reward):
         """
           The parent class calls this to observe a
@@ -307,7 +306,7 @@ class QLearningAgent(TetrisApp):
         # self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.simpleheuristic(prevboard, self.Tetris.board)) 
         piece = self.Tetris.stone
         #prevboard = self.Tetris.get_board_state(self.Tetris.board)
-        prevboard = deepcopy(self.Tetris.board)
+        prevboard = tetris.deepishcopy(self.Tetris.board)
         legalactions = self.Tetris.get_legal_actions(self.Tetris.stone)
         rot, col =self.getAction((self.Tetris.get_board_state(self.Tetris.board), self.Tetris.stone))
         i= 1

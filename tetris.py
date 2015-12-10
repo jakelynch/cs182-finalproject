@@ -45,6 +45,7 @@ import pygame, sys, copy
 import  random,util,math
 from copy import deepcopy
 import cPickle as pickle
+import timeit
 cell_size =	18
 cols =		10 
 rows =		22
@@ -84,10 +85,13 @@ tetris_shapes = [
 	[[7, 7],
 	 [7, 7]]
 ]
-
-
+def deepishcopyhelper(row):
+	return row[:]
+def deepishcopy(org):
+	out = map(deepishcopyhelper,org)
+	return out
 def rotate_clockwise(shape):
-	return [ [ shape[y][x]
+	return [[ shape[y][x]
 			for y in xrange(len(shape)) ]
 		for x in xrange(len(shape[0]) - 1, -1, -1) ]
 
@@ -118,7 +122,8 @@ def remove_row(board, row):
 	
 def join_matrixes(mat1, mat2, mat2_off):
 	
-	mat3 = deepcopy(mat1)
+	mat3 = deepishcopy(mat1)
+	#print mat3
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
@@ -316,7 +321,7 @@ class TetrisApp(object):
 		brick is placed then the game will call a new stone and the process will repeat"""
 
 		actions = self.get_legal_actions(self.Tetris.stone)
-		board = copy.deepcopy(origboard)
+		board = deepishcopy(origboard)
 		heuristicvals = []
 		y = 0
 
@@ -327,11 +332,11 @@ class TetrisApp(object):
 			y=0
 			rot, x = action
 
-			rotpiece = deepcopy(self.Tetris.stone)
+			rotpiece = deepishcopy(self.Tetris.stone)
 			for i in range(rot):	
 				rotpiece = 	rotate_clockwise(rotpiece)	
 
-			hyp_board = copy.deepcopy(self.Tetris.board)
+			hyp_board = deepishcopy(self.Tetris.board)
 			while not(check_collision(hyp_board, rotpiece, (x, y))):
 				y+=1
 
@@ -346,10 +351,10 @@ class TetrisApp(object):
 	def ideal_helper(self, action,hyp_board):
 		y=0
 		rot, x = action
-		rotpiece= deepcopy(self.Tetris.stone)
+		rotpiece= deepishcopy(self.Tetris.stone)
 		for i in range(rot):
 			rotpiece = rotate_clockwise(rotpiece)
-		#hyp_board = deepcopy(board)
+		#hyp_board = deepishcopy(board)
 		while not(check_collision(hyp_board, rotpiece, (x, y))):
 			y+=1
 		new_board = join_matrixes(hyp_board, rotpiece, (x,y))
@@ -358,14 +363,14 @@ class TetrisApp(object):
 		actions = self.get_legal_actions(self.Tetris.stone)
 		differencearray= []
 		bestactiondict={}
-		#rotpiece = deepcopy(self.Tetris.stone)
+		#rotpiece = deepishcopy(self.Tetris.stone)
 		hyp_board = board
 		differencearray = map(self.ideal_helper, actions,[hyp_board for i in range(len(actions))])
 		return differencearray
 
 	def simpleheuristic(self, board1, board2):
-		b1=deepcopy(board1)
-		b2=deepcopy(board2)
+		b1=deepishcopy(board1)
+		b2=deepishcopy(board2)
 
 		score = self.toprow(b1,b2)
 		
@@ -498,8 +503,11 @@ class TetrisApp(object):
 		# 	return -0.01
 		score -= 5.*self.heur_avg_height(board)
 		score -= self.heur_diffsum(board)
+		if self.heur_row_count(board) ==0 :
+			score -= 26 * self.heur_empty_spaces(board)
+		else:
+			score -= 3. *self.heur_empty_spaces(board)
 
-		score -= 26 * self.heur_empty_spaces(board)
 		#score += 3 * self.heur_bordering_pieces(board)
 		#score += 2 * self.heur_touching_pieces(board)
 		#score += 3 * self.heur_row_count(board)
@@ -559,7 +567,7 @@ class TetrisApp(object):
 
 
 	def arraytranspose(self, board):
-		board2 = deepcopy(board)
+		board2 = deepishcopy(board)
 		# print board2
 		board3 = [[0 for i in range(len(board2))] for i in range(len(board2[0]))]
 		# print len(board2),len(board2[0])
