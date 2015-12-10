@@ -117,11 +117,13 @@ def remove_row(board, row):
 	return [[0 for i in xrange(cols)]] + board
 	
 def join_matrixes(mat1, mat2, mat2_off):
+	
+	mat3 = deepcopy(mat1)
 	off_x, off_y = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
-			mat1[cy+off_y-1][cx+off_x] += val
-	return mat1
+			mat3[cy+off_y-1][cx+off_x] += val
+	return mat3
 
 def new_board():
 	board = [ [ 0 for x in xrange(cols) ]
@@ -337,52 +339,30 @@ class TetrisApp(object):
 
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
-		# 	for i in range(len(new_board)-1):
-		# 		if 0 not in new_board[i] and max(new_board[i])<8:
-		# 			row_removal_dict[action] = self.heur_empty_spaces(new_board)
-		# 	differencearray.append(self.toprow(self.Tetris.board,new_board))
-		# if row_removal_dict == {}:
-		# 	bestaction = actions[differencearray.index(max(differencearray))]
-		# 	return bestaction
-		# else:
-		# 	return min(row_removal_dict, key = row_removal_dict.get)
-			
-
-
-			# for i in range(len(new_board)-1):
-			# 	if 0 not in new_board[i] and max(new_board[i])<8:
-			# 		return action
-			#print "action is ", action
 			bestactiondict[action] = (self.toprow(self.Tetris.board,new_board),new_board)
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestactiondict, max(differencearray)
+	
+	def ideal_helper(self, action,hyp_board):
+		y=0
+		rot, x = action
+		rotpiece= deepcopy(self.Tetris.stone)
+		for i in range(rot):
+			rotpiece = rotate_clockwise(rotpiece)
+		#hyp_board = deepcopy(board)
+		while not(check_collision(hyp_board, rotpiece, (x, y))):
+			y+=1
+		new_board = join_matrixes(hyp_board, rotpiece, (x,y))
+		return (self.heuristic(new_board),action, new_board)
 	def ideal_place_2(self, board):
 		actions = self.get_legal_actions(self.Tetris.stone)
-		origboard=deepcopy(board)
 		differencearray= []
 		bestactiondict={}
-		for action in actions:
-			y=0
-			rot, x = action
-			rotpiece= deepcopy(self.Tetris.stone)
-			for i in range(rot):
-				rotpiece = rotate_clockwise(rotpiece)
-			hyp_board = deepcopy(board)
-			while not(check_collision(hyp_board, rotpiece, (x, y))):
-				y+=1
-			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
-			# for i in range(len(new_board)-1):
-			# 	if 0 not in new_board[i] and max(new_board[i])<8:
-			# 		return action
-			differencearray.append(self.heuristic(new_board))
-			bestactiondict[action] = (self.heuristic(new_board), new_board)
-			#bestactiondict[action] = (self.toprow(self.Tetris.board,new_board),new_board)
-
-		bestaction = actions[differencearray.index(max(differencearray))]
-		return bestactiondict, max(differencearray)
-
-		#return bestaction
+		#rotpiece = deepcopy(self.Tetris.stone)
+		hyp_board = board
+		differencearray = map(self.ideal_helper, actions,[hyp_board for i in range(len(actions))])
+		return differencearray
 
 	def simpleheuristic(self, board1, board2):
 		b1=deepcopy(board1)
@@ -391,9 +371,7 @@ class TetrisApp(object):
 		score = self.toprow(b1,b2)
 		
 		if score <= 0:
-			#print "Score : ", 10
 			return 10.0
-		#print "Score : ", score
 		return float(score)
 
 
@@ -440,10 +418,7 @@ class TetrisApp(object):
 			if transpose[column-1][i]> 0:
 				break
 			Sum2+=1
-		# for i in range(len(transpose[column+1])):
-		# 	if transpose[column+1][i]> 0:
-		# 		break
-		# 	Sum3+=1
+
 		sq_difference+= (Sum2-Sum1)**2
 		return sq_difference
 
@@ -452,9 +427,7 @@ class TetrisApp(object):
 		for i in range(1,cols):
 			diffsq.append(self.difference_squared(board,i))
 		diffsqsum = sum(diffsq)
-		#avgheight =self.average_height(board)
-		# print "diffsqsum: ", diffsqsum
-		# print "avgheight: ", avgheight
+
 		return diffsqsum
 	def heur_avg_height(self,board):
 		return self.average_height(board)
@@ -468,19 +441,7 @@ class TetrisApp(object):
 
 	def heur_empty_spaces(self, board):
 		score = 0
-		# transpose=self.arraytranspose(board)
-		# state = []
 
-		# for row in transpose:
-		# 	# print row
-		# 	state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
-		# for val in state:
-		# 	y= 0 
-		# 	while y< (val):
-		# 		if board[rows - y][state.index(val)] == 0:
-		# 			score += 1
-		# 		y += 1
-		# return score
 		for i in range(rows):
 			for j in range(cols):
 				if board[i][j] != 0:

@@ -215,6 +215,10 @@ class QLearningAgent(TetrisApp):
 
         return finalaction
 
+    def helperfunction(self, lst):
+      value, action, new_board = lst
+      #print value , 
+      return (value + max(self.ideal_place_2(new_board))[0], action)
     def getAction(self, state):
         """
           Compute the action to take in the current state.  With
@@ -231,17 +235,11 @@ class QLearningAgent(TetrisApp):
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
-                #action = self.ideal_place_2(self.Tetris.board)
                 valuedict = {}
-                hyp_board = deepcopy(self.Tetris.board)
-                actionlist, maxval = self.ideal_place_2(self.Tetris.board)
-                for key,val in actionlist.items():
-                  #print key, val[0]
-                  #print "val is ", val[0], self.ideal_place(val[1])[1]
-                  #print val
-                  #print self.ideal_place_2(val[1])
-                  valuedict[val[0] + self.discount*self.ideal_place_2(val[1])[1]] = key
-                return valuedict[max(valuedict.keys())]
+                #hyp_board = deepcopy(self.Tetris.board)
+                actionlist= self.ideal_place_2(self.Tetris.board)
+                valuelist = map(self.helperfunction, actionlist)
+                return max(valuelist)[1]
               else:
                 action = self.computeActionFromQValues(state)
 
