@@ -505,7 +505,6 @@ class TetrisApp(object):
 		board = np.array(possboard)
 		score = 0
 
-
 		score += 0.05 * self.heur_diffsum(board)
 		score += 75 * self.heur_row_removal(board)
 		score -= 1 * self.heur_empty_spaces(board)

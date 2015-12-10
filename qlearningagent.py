@@ -12,7 +12,7 @@ import pickle
 cell_size = 18
 cols =    10 
 rows =    22
-maxfps =  30
+maxfps =  2000
 
 colors = [
 (0,   0,   0  ),
@@ -282,7 +282,7 @@ class QLearningAgent(TetrisApp):
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
 
-      if n< 0:
+      if n< 1000:
         self.epsilon = 1
       else:
         self.epsilon = 1/math.log(float(n)+1)# 1./float(15*math.log(n)+1.)
@@ -358,7 +358,7 @@ class QLearningAgent(TetrisApp):
                 +key):
                   key_actions[key]()
               
-          dont_burn_my_cpu.tick(maxfps)
+        #dont_burn_my_cpu.tick(maxfps)
 
 if __name__ == '__main__':
   Q = QLearningAgent()
