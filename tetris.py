@@ -328,7 +328,7 @@ class TetrisApp(object):
 		return differencearray
 
 	def ideal_helper(self,hyp_board,action,nextpiece):
-		y = rows - self.maxrow(hyp_board) - 4
+		y = 0
 		#print y
 		rot, x = action
 		if not(nextpiece):
