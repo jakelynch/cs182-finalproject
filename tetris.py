@@ -321,51 +321,48 @@ class TetrisApp(object):
 		brick is placed then the game will call a new stone and the process will repeat"""
 
 		actions = self.get_legal_actions(self.Tetris.stone)
-		board = deepishcopy(origboard)
-		heuristicvals = []
-		y = 0
-
 		differencearray= []
 		bestactiondict={}
+		hyp_board = board
+		differencearray = map((lambda x: self.ideal_helper_simple(hyp_board, x)), actions)#,[hyp_board for i in range(len(actions))])
+		return differencearray
 
-		for action in actions:
-			y=0
-			rot, x = action
-
-			rotpiece = deepishcopy(self.Tetris.stone)
-			for i in range(rot):	
-				rotpiece = 	rotate_clockwise(rotpiece)	
-
-			hyp_board = deepishcopy(self.Tetris.board)
-			while not(check_collision(hyp_board, rotpiece, (x, y))):
-				y+=1
-
-
-
-			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
-			bestactiondict[action] = (self.toprow(self.Tetris.board,new_board),new_board)
-			differencearray.append(self.toprow(self.Tetris.board,new_board))
-		bestaction = actions[differencearray.index(max(differencearray))]
-		return bestactiondict, max(differencearray)
-	
-	def ideal_helper(self, action,hyp_board):
-		y=0
+	def ideal_helper(self,hyp_board,action,nextpiece):
+		y = rows - self.maxrow(hyp_board) - 4
+		#print y
 		rot, x = action
-		rotpiece= deepishcopy(self.Tetris.stone)
+		if not(nextpiece):
+			rotpiece= deepishcopy(self.Tetris.stone)
+		else:
+			rotpiece= deepishcopy(self.Tetris.next_stone)
 		for i in range(rot):
 			rotpiece = rotate_clockwise(rotpiece)
-		#hyp_board = deepishcopy(board)
 		while not(check_collision(hyp_board, rotpiece, (x, y))):
 			y+=1
 		new_board = join_matrixes(hyp_board, rotpiece, (x,y))
 		return (self.heuristic(new_board),action, new_board)
-	def ideal_place_2(self, board):
-		actions = self.get_legal_actions(self.Tetris.stone)
+	def ideal_helper_simple(self,hyp_board,action,nextpiece):
+		y=self.maxrow(board)-1
+		rot, x = action
+		if netxpiece:
+			rotpiece = deepishcopy(self.Tetris.next_stone)
+		else:
+			rotpiece= deepishcopy(self.Tetris.stone)
+		for i in range(rot):
+			rotpiece = rotate_clockwise(rotpiece)
+		while not(check_collision(hyp_board, rotpiece, (x, y))):
+			y+=1
+		new_board = join_matrixes(hyp_board, rotpiece, (x,y))
+		return (self.simpleheuristic(new_board),action, new_board)
+	def ideal_place_2(self, board,actions,nextpiece):
+		if nextpiece:
+			actions = self.Tetris.get_legal_actions(self.Tetris.next_stone)
+			#print len(actions)
 		differencearray= []
 		bestactiondict={}
-		#rotpiece = deepishcopy(self.Tetris.stone)
 		hyp_board = board
-		differencearray = map(self.ideal_helper, actions,[hyp_board for i in range(len(actions))])
+
+		differencearray = map((lambda x: self.ideal_helper(hyp_board, x, nextpiece)), actions)#,[hyp_board for i in range(len(actions))])
 		return differencearray
 
 	def simpleheuristic(self, board1, board2):
@@ -407,7 +404,6 @@ class TetrisApp(object):
 
 
 	def difference_squared(self,board, column):
-		#board_array = np.array(board)
 		transpose=self.arraytranspose(board)
 		
 		Sum1= 0
@@ -503,15 +499,8 @@ class TetrisApp(object):
 		# 	return -0.01
 		score -= 5.*self.heur_avg_height(board)
 		score -= self.heur_diffsum(board)
-		if self.heur_row_count(board) ==0 :
-			score -= 26 * self.heur_empty_spaces(board)
-		else:
-			score -= 3. *self.heur_empty_spaces(board)
+		score -= 16 * self.heur_empty_spaces(board)
 
-		#score += 3 * self.heur_bordering_pieces(board)
-		#score += 2 * self.heur_touching_pieces(board)
-		#score += 3 * self.heur_row_count(board)
-		# print "Score: ", score
 		return score
 
 
@@ -557,6 +546,7 @@ class TetrisApp(object):
 
 	def maxrow(self,board):
 		maxval = 0
+
 		for row in board[:len(board)-1]:
 			row = np.array(row)
 			val = len(row[row>0])

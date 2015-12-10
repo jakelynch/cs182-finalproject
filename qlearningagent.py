@@ -7,8 +7,11 @@ import pygame, sys, copy
 import  random,util,math
 import matplotlib.pyplot as plt
 ##import qlearningagent
+import time
 from copy import deepcopy
 import pickle
+import cProfile
+import re
 cell_size = 18
 cols =    10 
 rows =    22
@@ -219,10 +222,15 @@ class QLearningAgent(TetrisApp):
 
         return finalaction
 
-    def helperfunction(self, lst):
+    def helperfunction(self, lst, legalactions):
       value, action, new_board = lst
+
       #print value , 
-      return (value + max(self.ideal_place_2(new_board))[0], action)
+      start = time.clock()
+      val = (value + max(self.ideal_place_2(new_board, legalactions,True))[0], action)
+      end = time.clock()
+      print end-start
+      return val
     def getAction(self, state):
         """
           Compute the action to take in the current state.  With
@@ -240,9 +248,15 @@ class QLearningAgent(TetrisApp):
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
                 valuedict = {}
-                actionlist= self.ideal_place_2(self.Tetris.board)
-                valuelist = map(self.helperfunction, actionlist)
+                start = time.clock()
+
+                actionlist= self.ideal_place_2(self.Tetris.board, legalActions, False)
+                end1 = time.clock()
+                valuelist = map((lambda x: self.helperfunction(x, legalActions)), actionlist)
+                end2= time.clock()
+                print end-start
                 return max(valuelist)[1]
+                
               else:
                 action = self.computeActionFromQValues(state)
 
