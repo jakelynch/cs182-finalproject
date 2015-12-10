@@ -12,7 +12,7 @@ import pickle
 cell_size = 18
 cols =    10 
 rows =    22
-maxfps =  2000
+maxfps =  2000000
 
 colors = [
 (0,   0,   0  ),
@@ -360,8 +360,8 @@ if __name__ == '__main__':
   linescleared = []
   piecesdropped = []
 
-  for i in range(10):
-
+  for i in range(11000):
+    print "Iteration: ", i
     Q.run(i+1)
     if (i % 2 == 0):
       iters.append(i)
