@@ -231,7 +231,7 @@ class QLearningAgent(TetrisApp):
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
-                action = self.ideal_place(self.Tetris.board)
+                action = self.ideal_place_2(self.Tetris.board)
               
               else:
                 action = self.computeActionFromQValues(state)
@@ -360,7 +360,7 @@ if __name__ == '__main__':
   linescleared = []
   piecesdropped = []
 
-  for i in range(10000):
+  for i in range(10):
 
     Q.run(i+1)
     if (i % 2 == 0):
