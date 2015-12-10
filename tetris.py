@@ -319,8 +319,7 @@ class TetrisApp(object):
 		board = copy.deepcopy(origboard)
 		heuristicvals = []
 		y = 0
-		# differencearray = []
-		# row_removal_dict = {}
+
 		differencearray= []
 		bestactiondict={}
 
