@@ -43,10 +43,8 @@ import numpy as np
 from random import randrange as rand
 import pygame, sys, copy
 import  random,util,math
-##import qlearningagent
 from copy import deepcopy
 import cPickle as pickle
-# The configuration
 cell_size =	18
 cols =		10 
 rows =		22
@@ -150,16 +148,10 @@ class TetrisApp(object):
 		                                             # mouse movement
 		                                             # events, so we
 		                                             # block them.
-		# This is the first time that it passes in a falling piece, and it chooses it randomly,
-		# if we are to reach the point that we can do adverserial tetris, then we will want to
-		# replace this line so that it always starts with the most troublesome piece
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.init_game()
 	
 	def new_stone(self):
-		# Where we will have to insert the remainder of our adverserial function, right now it just chooses
-		# the different kinds randomly and we would replace that with an intelligent adversary that attempts
-		# to make it as difficult as possible for the max player
 		self.numpieces += 1
 		self.stone = self.next_stone[:]
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
@@ -325,6 +317,8 @@ class TetrisApp(object):
 		board = copy.deepcopy(origboard)
 		heuristicvals = []
 		y = 0
+		# differencearray = []
+		# row_removal_dict = {}
 		differencearray= []
 		bestactiondict={}
 
@@ -343,6 +337,17 @@ class TetrisApp(object):
 
 
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
+		# 	for i in range(len(new_board)-1):
+		# 		if 0 not in new_board[i] and max(new_board[i])<8:
+		# 			row_removal_dict[action] = self.heur_empty_spaces(new_board)
+		# 	differencearray.append(self.toprow(self.Tetris.board,new_board))
+		# if row_removal_dict == {}:
+		# 	bestaction = actions[differencearray.index(max(differencearray))]
+		# 	return bestaction
+		# else:
+		# 	return min(row_removal_dict, key = row_removal_dict.get)
+			
+
 
 			# for i in range(len(new_board)-1):
 			# 	if 0 not in new_board[i] and max(new_board[i])<8:
@@ -372,6 +377,7 @@ class TetrisApp(object):
 			differencearray.append(self.heuristic(new_board))
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestaction
+
 	def simpleheuristic(self, board1, board2):
 		b1=deepcopy(board1)
 		b2=deepcopy(board2)
