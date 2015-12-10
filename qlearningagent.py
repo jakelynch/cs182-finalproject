@@ -14,6 +14,10 @@ cols =    10
 rows =    22
 maxfps =  2000000
 
+# Variables setting amount of times each part of program runs
+value_iter_rounds = 5#1000 
+total_iterations = 55#11000
+
 colors = [
 (0,   0,   0  ),
 (255, 85,  85),
@@ -281,7 +285,7 @@ class QLearningAgent(TetrisApp):
       self.Tetris.board = tetris.new_board()
       self.boardprev=self.Tetris.board
 
-      if n< 1000:
+      if n< value_iter_rounds:
         self.epsilon = 1
       else:
         self.epsilon = 1/(15.*math.log(float(n)+1))# 1./float(15*math.log(n)+1.)
@@ -366,7 +370,7 @@ if __name__ == '__main__':
   linescleared = []
   piecesdropped = []
 
-  for i in range(11000):
+  for i in range(total_iterations):
     print "Iteration: ", i
     Q.run(i+1)
     if (i % 2 == 0):
