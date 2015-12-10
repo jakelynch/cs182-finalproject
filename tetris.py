@@ -347,7 +347,7 @@ class TetrisApp(object):
 			# for i in range(len(new_board)-1):
 			# 	if 0 not in new_board[i] and max(new_board[i])<8:
 			# 		return action
-			print "action is ", action
+			#print "action is ", action
 			bestactiondict[action] = (self.toprow(self.Tetris.board,new_board),new_board)
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
 		bestaction = actions[differencearray.index(max(differencearray))]
