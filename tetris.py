@@ -176,6 +176,7 @@ class TetrisApp(object):
 	
 	def init_game(self):
 		self.board = new_board()
+		self.numpieces = 0
 		self.new_stone()
 		self.level = 1
 		self.score = 0
@@ -312,6 +313,7 @@ class TetrisApp(object):
 				self.move(-1)
 				
 
+		# Once ideal rotation and pos is in line, just drops the brick to speed up the game
 		self.insta_drop()
  
 
