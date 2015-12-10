@@ -514,34 +514,23 @@ class TetrisApp(object):
 
 	def get_board_state(self, board):
 		
-		#print len(board),len(board[0])
 		transpose= self.arraytranspose(board)
-		#print len(transpose)
 
 		state = []
-
 		for row in transpose:
-			# print row
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
-		#print state
 		row = rows-max(state)
-
 		if max(state) >3:
-
-			array = np.array(board[row:row+4])
-			#if array ==[]:
-			#	print "error"
+			array = np.array(board[row:row+3])
 			array[array >0] = 1
 		else: 
-			#print "hi"
 			array = np.array(board[rows-4:rows])
 			array[array >0] = 1
-		#print len(array),len(array[0])
 		posed = self.arraytranspose(array)
 		finalarray = []
 		for row in posed:
-			finalarray.append(next((4-i for i, x in enumerate(row) if x>0), 0))
-		#print  finalarray
+			finalarray.append(next((3-i for i, x in enumerate(row) if x>0), 0))
+
 		return finalarray
 		
 	
@@ -553,11 +542,9 @@ class TetrisApp(object):
 
 			val1,val2,val3 = len(row1[row1>0]),len(row2[row2>0]),len(row3[row3>0])
 			val4,val5,val6 = len(row4[row4>0]),len(row5[row5>0]),len(row6[row6>0])
-			#print  row1, row2, row3, row4, val1, val2, val3, val4
 			if val1>0 :
 
-				#print "val  ", (val3+val4)-(val2 + val1)
-				return (val4+val5+val6)-(val1 + val2+val3)
+]				return (val4+val5+val6)-(val1 + val2+val3)
 
 		return 0.
 
@@ -568,8 +555,7 @@ class TetrisApp(object):
 			val = len(row[row>0])
 			if val>maxval:
 				maxval = val
-			# print "val", val
-		#print "maxval ", maxval
+
 		return maxval
 
 
