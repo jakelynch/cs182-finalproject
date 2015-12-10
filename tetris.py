@@ -505,6 +505,7 @@ class TetrisApp(object):
 		board = np.array(possboard)
 		score = 0
 
+
 		score += 0.05 * self.heur_diffsum(board)
 		score += 75 * self.heur_row_removal(board)
 		score -= 1 * self.heur_empty_spaces(board)
@@ -527,7 +528,7 @@ class TetrisApp(object):
 			array = np.array(board[row:row+3])
 			array[array >0] = 1
 		else: 
-			array = np.array(board[rows-4:rows])
+			array = np.array(board[rows-3:rows])
 			array[array >0] = 1
 		posed = self.arraytranspose(array)
 		finalarray = []
@@ -547,7 +548,7 @@ class TetrisApp(object):
 			val4,val5,val6 = len(row4[row4>0]),len(row5[row5>0]),len(row6[row6>0])
 			if val1>0 :
 
-]				return (val4+val5+val6)-(val1 + val2+val3)
+				return (val4+val5+val6)-(val1 + val2+val3)
 
 		return 0.
 
