@@ -225,7 +225,6 @@ class QLearningAgent(TetrisApp):
     def helperfunction(self, lst, legalactions):
       value, action, new_board = lst
 
-      #print value , 
       start = time.clock()
       val = (value + max(self.ideal_place_2(new_board, legalactions,True))[0], action)
       # end = time.clock()
@@ -248,9 +247,8 @@ class QLearningAgent(TetrisApp):
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
                 valuedict = {}
-                #start = time.clock()
-
                 actionlist= self.ideal_place_2(self.Tetris.board, legalActions, False)
+<<<<<<< HEAD
 <<<<<<< HEAD
                 # end1 = time.clock()
                 valuelist = map((lambda x: self.helperfunction(x, legalActions)), actionlist)
@@ -262,6 +260,9 @@ class QLearningAgent(TetrisApp):
                 #end2= time.clock()
                 #print end-start
 >>>>>>> 79532a36fd8a965480b7de297b37cf9661cd82f6
+=======
+                valuelist = map((lambda x: self.helperfunction(x, legalActions)), actionlist)
+>>>>>>> 308a0f16dd64749a8e4a6f41e4a8e07316468611
                 return max(valuelist)[1]
                 
               else:
