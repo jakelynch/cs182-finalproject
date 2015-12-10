@@ -422,16 +422,16 @@ class TetrisApp(object):
 			if transpose[column-1][i]> 0:
 				break
 			Sum2+=1
-		for i in range(len(transpose[column+1])):
-			if transpose[column+1][i]> 0:
-				break
-			Sum3+=1
-		sq_difference+= (Sum3-Sum1)**2 + (Sum2-Sum1)**2
+		# for i in range(len(transpose[column+1])):
+		# 	if transpose[column+1][i]> 0:
+		# 		break
+		# 	Sum3+=1
+		sq_difference+= (Sum2-Sum1)**2
 		return sq_difference
 
 	def heur_diffsum(self, board):
 		diffsq=[]
-		for i in range(1,cols-1):
+		for i in range(1,cols):
 			diffsq.append(self.difference_squared(board,i))
 		diffsqsum = sum(diffsq)
 		#avgheight =self.average_height(board)
@@ -450,6 +450,19 @@ class TetrisApp(object):
 
 	def heur_empty_spaces(self, board):
 		score = 0
+		# transpose=self.arraytranspose(board)
+		# state = []
+
+		# for row in transpose:
+		# 	# print row
+		# 	state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
+		# for val in state:
+		# 	y= 0 
+		# 	while y< (val):
+		# 		if board[rows - y][state.index(val)] == 0:
+		# 			score += 1
+		# 		y += 1
+		# return score
 		for i in range(rows):
 			for j in range(cols):
 				if board[i][j] != 0:
