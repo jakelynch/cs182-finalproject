@@ -361,6 +361,7 @@ class TetrisApp(object):
 		actions = self.get_legal_actions(self.Tetris.stone)
 		origboard=deepcopy(board)
 		differencearray= []
+		bestactiondict={}
 		for action in actions:
 			y=0
 			rot, x = action
@@ -371,12 +372,17 @@ class TetrisApp(object):
 			while not(check_collision(hyp_board, rotpiece, (x, y))):
 				y+=1
 			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
-			for i in range(len(new_board)-1):
-				if 0 not in new_board[i] and max(new_board[i])<8:
-					return action
+			# for i in range(len(new_board)-1):
+			# 	if 0 not in new_board[i] and max(new_board[i])<8:
+			# 		return action
 			differencearray.append(self.heuristic(new_board))
+			bestactiondict[action] = (self.heuristic(new_board), new_board)
+			#bestactiondict[action] = (self.toprow(self.Tetris.board,new_board),new_board)
+
 		bestaction = actions[differencearray.index(max(differencearray))]
-		return bestaction
+		return bestactiondict, max(differencearray)
+
+		#return bestaction
 
 	def simpleheuristic(self, board1, board2):
 		b1=deepcopy(board1)
@@ -549,7 +555,7 @@ class TetrisApp(object):
 		for row in transpose:
 			state.append(next((rows-i for i, x in enumerate(row) if x>0), 0))
 		row = rows-max(state)
-		if max(state) >3:
+		if max(state):
 			array = np.array(board[row:row+3])
 			array[array >0] = 1
 		else: 
@@ -566,14 +572,18 @@ class TetrisApp(object):
 	def toprow(self,board,hyp_board):
 		val = 0
 		for i in range(len(board)-2):
-			row1, row2,row3, =np.array(board[i]), np.array(board[i+1]), np.array(board[i+2])
-			row4, row5, row6 = np.array(hyp_board[i]), np.array(hyp_board[i+1]), np.array(hyp_board[i+2])
-
-			val1,val2,val3 = len(row1[row1>0]),2*len(row2[row2>0]),3*len(row3[row3>0])
-			val4,val5,val6 = len(row4[row4>0]),2*len(row5[row5>0]),3*len(row6[row6>0])
+			# row1, row2,row3, =np.array(board[i]), np.array(board[i+1]), np.array(board[i+2])
+			# row4, row5, row6 = np.array(hyp_board[i]), np.array(hyp_board[i+1]), np.array(hyp_board[i+2])
+			row1 = np.array(board[i])
+			row2 = np.array(hyp_board[i])
+			# val1,val2,val3 = len(row1[row1>0]),2*len(row2[row2>0]),3*len(row3[row3>0])
+			# val4,val5,val6 = len(row4[row4>0]),2*len(row5[row5>0]),3*len(row6[row6>0])
+			val1,val2,val3 = len(row1[row1>0]),len(row2[row2>0]),len(row3[row3>0])
+			val4,val5,val6 = len(row4[row4>0]),len(row5[row5>0]),len(row6[row6>0])
 			if val1>0 :
+				return val4-val1
 
-				return (val4+val5+val6)-(val1 + val2+val3)
+				# return (val4+val5+val6)-(val1 + val2+val3)
 
 		return 0.
 

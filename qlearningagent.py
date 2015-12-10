@@ -231,14 +231,16 @@ class QLearningAgent(TetrisApp):
         "*** YOUR CODE HERE ***"
         if len(legalActions)!=0:
               if util.flipCoin(self.epsilon):
-                action = self.ideal_place_2(self.Tetris.board)
+                #action = self.ideal_place_2(self.Tetris.board)
                 valuedict = {}
                 hyp_board = deepcopy(self.Tetris.board)
-                actionlist, maxval = self.ideal_place(self.Tetris.board)
+                actionlist, maxval = self.ideal_place_2(self.Tetris.board)
                 for key,val in actionlist.items():
                   #print key, val[0]
                   #print "val is ", val[0], self.ideal_place(val[1])[1]
-                  valuedict[val[0] + self.discount*self.ideal_place(val[1])[1]] = key
+                  #print val
+                  #print self.ideal_place_2(val[1])
+                  valuedict[val[0] + self.discount*self.ideal_place_2(val[1])[1]] = key
                 return valuedict[max(valuedict.keys())]
               else:
                 action = self.computeActionFromQValues(state)
@@ -303,8 +305,8 @@ class QLearningAgent(TetrisApp):
       n+=1
       while not(self.Tetris.gameover):
 
-        #self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.heuristic(self.Tetris.board)) 
-        self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.simpleheuristic(prevboard, self.Tetris.board)) 
+        self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.heuristic(self.Tetris.board)) 
+        # self.update((prevboard,self.Tetris.stone), (rot,col), (self.Tetris.get_board_state(self.Tetris.board),self.Tetris.stone), self.Tetris.simpleheuristic(prevboard, self.Tetris.board)) 
         piece = self.Tetris.stone
         #prevboard = self.Tetris.get_board_state(self.Tetris.board)
         prevboard = deepcopy(self.Tetris.board)
