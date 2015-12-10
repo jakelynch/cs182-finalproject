@@ -345,30 +345,39 @@ class TetrisApp(object):
 			return min(row_removal_dict, key = row_removal_dict.get)
 			
 
-
-
+	def ideal_place_2(self, board):
+		actions = self.get_legal_actions(self.Tetris.stone)
+		origboard=deepcopy(board)
+		differencearray= []
+		for action in actions:
+			y=0
+			rot, x = action
+			rotpiece= deepcopy(self.Tetris.stone)
+			for i in range(rot):
+				rotpiece = rotate_clockwise(rotpiece)
+			hyp_board = deepcopy(board)
+			while not(check_collision(hyp_board, rotpiece, (x, y))):
+				y+=1
+			new_board = join_matrixes(hyp_board, rotpiece, (x,y))
+			# for i in range(len(new_board)-1):
+			# 	if 0 not in new_board[i] and max(new_board[i])<8:
+			# 		return action
+			differencearray.append(self.heuristic(new_board))
+		bestaction = actions[differencearray.index(max(differencearray))]
+		return bestaction
 
 	def simpleheuristic(self, board1, board2):
 		b1=deepcopy(board1)
 		b2=deepcopy(board2)
-		print len(b2) , len(b1),
-		if len(b2)!= len(b1):
-			print b1
+
 		score = self.toprow(b1,b2)
 		
 		if score <= 0:
-			print "Score : ", 10
+			#print "Score : ", 10
 			return 10.0
-		print "Score : ", score
+		#print "Score : ", score
 		return float(score)
-  	#   	x = action[0]
-  	#   	y = 0
-  	#   	for i in action[1]:
-  	#   		piece = rotate_clockwise(piece)
-  	#  		while not(check_collision(hyp_board, piece, (x, y))):
-	# 	y+=1
-	# new_board = join_matrixes(hyp_board, piece, (x,y))
-	# return self.toprow(self.Tetris.board,new_board)
+
 
 	def get_legal_actions(self, stone):
 		rotations = []
@@ -425,10 +434,12 @@ class TetrisApp(object):
 		for i in range(1,cols-1):
 			diffsq.append(self.difference_squared(board,i))
 		diffsqsum = sum(diffsq)
-		avgheight =self.average_height(board)
+		#avgheight =self.average_height(board)
 		# print "diffsqsum: ", diffsqsum
 		# print "avgheight: ", avgheight
-		return -(diffsqsum+avgheight*4)
+		return diffsqsum
+	def heur_avg_height(self,board):
+		return self.average_height(board)
 
 	def heur_row_removal(self, board):
 		score = 0
@@ -491,13 +502,16 @@ class TetrisApp(object):
 	def heuristic(self, possboard):
 		board = np.array(possboard)
 		score = 0
+		# if self.heur_row_removal(board)>0:
+		# 	print "we use this"
+		# 	return -0.01
+		score -= 5.*self.heur_avg_height(board)
+		score -= self.heur_diffsum(board)
 
-		score += 0.05 * self.heur_diffsum(board)
-		score += 75 * self.heur_row_removal(board)
-		score -= 1 * self.heur_empty_spaces(board)
-		score += 3 * self.heur_bordering_pieces(board)
-		score += 2 * self.heur_touching_pieces(board)
-		score += 3 * self.heur_row_count(board)
+		score -= 16 * self.heur_empty_spaces(board)
+		#score += 3 * self.heur_bordering_pieces(board)
+		#score += 2 * self.heur_touching_pieces(board)
+		#score += 3 * self.heur_row_count(board)
 		# print "Score: ", score
 		return score
 
