@@ -317,6 +317,7 @@ class TetrisApp(object):
 		board = copy.deepcopy(origboard)
 		heuristicvals = []
 		y = 0
+
 		differencearray= []
 		bestactiondict={}
 
@@ -350,12 +351,12 @@ class TetrisApp(object):
 			# for i in range(len(new_board)-1):
 			# 	if 0 not in new_board[i] and max(new_board[i])<8:
 			# 		return action
-			print "action is ", action
+			#print "action is ", action
 			bestactiondict[action] = (self.toprow(self.Tetris.board,new_board),new_board)
 			differencearray.append(self.toprow(self.Tetris.board,new_board))
 		bestaction = actions[differencearray.index(max(differencearray))]
 		return bestactiondict, max(differencearray)
-		
+
 	def ideal_place_2(self, board):
 		actions = self.get_legal_actions(self.Tetris.stone)
 		origboard=deepcopy(board)
